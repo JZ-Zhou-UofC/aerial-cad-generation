@@ -1,0 +1,48 @@
+# =====================================
+# OS / Editor junk
+# =====================================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# =====================================
+# Frontend (Next.js)
+# =====================================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/.cache/
+
+# package manager logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# =====================================
+# Environment files (secrets)
+# =====================================
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# =====================================
+# Build / coverage
+# =====================================
+dist/
+build/
+coverage/
+
+# =====================================
+# Temp files
+# =====================================
+tmp/
+temp/
