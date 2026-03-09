@@ -63,6 +63,16 @@ export default function MapControls({ map, airportLayer }: Props) {
       >
         Toggle Map
       </button>
+        <button
+        
+      >
+        placeholder_for_boundary
+      </button>
+              <button
+        
+      >
+        placeholder_for_details
+      </button>
     </div>
   );
 }
