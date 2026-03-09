@@ -16,8 +16,9 @@ export function renderRunway(
     path,
     fillColor: style.fillColor,
     fillOpacity: style.fillOpacity,
-    strokeColor: "#c9c9c9",
+    strokeColor: style.strokeColor,
     strokeWeight: style.strokeWeight,
+    strokeOpacity: style.strokeOpacity,
     map,
   });
 }
