@@ -1,4 +1,4 @@
-import AirportLayer from "./AirportLayer";
+import AirportLayer from "./airportLayer";
 
 export function initControls(
   map: google.maps.Map,
