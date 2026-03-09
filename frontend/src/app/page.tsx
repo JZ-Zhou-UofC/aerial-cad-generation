@@ -1,5 +1,5 @@
-import  ImageViewer  from "@/components/image-viewer";
+import MapView from "../components/MapView";
 
-export default function Home() {
-  return <ImageViewer />;
+export default function Page() {
+  return <MapView />;
 }
