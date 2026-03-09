@@ -43,7 +43,7 @@ export default class AirportLayer {
         if (!el?.geometry || !el?.tags?.aeroway) return;
 
         const feature = el.tags.aeroway;
-        const style = aerowayStyles[feature];
+        const style = aerowayStyles[feature as keyof typeof aerowayStyles];
         if (!style) return;
 
         let renderStyle = style;

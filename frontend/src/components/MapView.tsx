@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { initMap } from "@/lib/map";
-import AirportLayer from "@/lib/airportLayer";
+import AirportLayer from "@/lib/osm/airportLayer";
 import MapControls from "./MapControls";
 import LayerControls from "./LayerControls";
 
