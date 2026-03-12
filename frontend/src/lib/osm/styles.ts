@@ -1,7 +1,7 @@
 // Airport Data Visualization Configuration
 
 export const aerowayStyles = {
-  // Movement surfaces
+  // roads / areas
   runway: {
     render: "line",
     strokeColor: "#d32f2f", // deep red
@@ -31,7 +31,7 @@ export const aerowayStyles = {
     strokeWeight: 2,
   },
 
-  // Infrastructure
+  // buildings
   terminal: {
     render: "polygon",
     fillColor: "#7b1fa2", // purple building
@@ -49,7 +49,7 @@ export const aerowayStyles = {
   },
 
   parking_position: {
-    render: "polygon",
+    render: "line",
     fillColor: "#fbc02d", // yellow
     fillOpacity: 0.4,
     strokeColor: "#f9a825",

@@ -62,9 +62,10 @@ export default class AirportLayer {
   renderElement(el: any) {
     if (!el?.geometry) return;
 
+    // detect feature type
     let feature: string | undefined = el.tags?.aeroway || el.tags?.building;
 
-    // groundcover detection
+    // detect if it's grass
     if (
       !feature &&
       (el.tags?.landcover === "grass" ||
@@ -80,11 +81,7 @@ export default class AirportLayer {
     const style = aerowayStyles[feature as keyof typeof aerowayStyles];
     if (!style) return;
 
-    let renderStyle = style;
-
-    if (feature === "runway" || feature === "taxiway") {
-      renderStyle = { ...style, render: "line" };
-    }
+    const renderStyle = style;
 
     const overlay = renderDefault(this.map, el, renderStyle);
     if (!overlay) return;
