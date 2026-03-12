@@ -7,7 +7,7 @@ type Props = {
   airportLayer: AirportLayer;
 };
 
-const initialLayersToggleState: Record<FeatureName, boolean> = {
+const initialLayersVisibilityState: Record<FeatureName, boolean> = {
   runway: true,
   taxiway: true,
   stopway: true,
@@ -21,18 +21,20 @@ const initialLayersToggleState: Record<FeatureName, boolean> = {
 
 // purely for UI layout
 const featureGroups: { title: string; features: FeatureName[] }[] = [
-  { title: "Movement", features: ["runway", "taxiway", "stopway", "apron"] },
-  { title: "Infrastructure", features: ["terminal", "hangar"] },
+  { title: "Roads/Areas", features: ["runway", "taxiway", "stopway", "apron"] },
+  { title: "Buildings", features: ["terminal", "hangar"] },
   { title: "Operations", features: ["parking_position"] },
   { title: "Groundcover", features: ["grass"] },
   { title: "Boundary", features: ["aerodrome"] },
 ];
 
 export default function LayerControls({ airportLayer }: Props) {
-  const [layersState, setLayersState] = useState(initialLayersToggleState);
+  const [layersVisibilityState, setLayersVisibilityState] = useState(
+    initialLayersVisibilityState,
+  );
 
   const toggleFeature = (feature: FeatureName, visible: boolean) => {
-    setState((prev) => ({
+    setLayersVisibilityState((prev) => ({
       ...prev,
       [feature]: visible,
     }));
@@ -62,7 +64,7 @@ export default function LayerControls({ airportLayer }: Props) {
             <label key={feature} style={{ display: "block", paddingLeft: 8 }}>
               <input
                 type="checkbox"
-                checked={state[feature]}
+                checked={layersVisibilityState[feature]}
                 onChange={(e) => toggleFeature(feature, e.target.checked)}
               />{" "}
               {feature.replace("_", " ")}
