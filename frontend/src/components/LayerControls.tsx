@@ -29,7 +29,7 @@ const featureGroups: { title: string; features: FeatureName[] }[] = [
 ];
 
 export default function LayerControls({ airportLayer }: Props) {
-  const [state, setState] = useState(initialState);
+  const [layersState, setLayersState] = useState(initialLayersToggleState);
 
   const toggleFeature = (feature: FeatureName, visible: boolean) => {
     setState((prev) => ({
