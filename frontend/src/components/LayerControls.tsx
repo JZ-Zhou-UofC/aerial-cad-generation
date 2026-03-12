@@ -7,7 +7,7 @@ type Props = {
   airportLayer: AirportLayer;
 };
 
-const initialState: Record<FeatureName, boolean> = {
+const initialLayersToggleState: Record<FeatureName, boolean> = {
   runway: true,
   taxiway: true,
   stopway: true,
