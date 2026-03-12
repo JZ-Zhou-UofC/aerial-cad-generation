@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
+import AirportLayer from "@/lib/osm/airportLayer";
 
 type Props = {
   map: google.maps.Map;
-  airportLayer: any;
+  airportLayer: AirportLayer;
 };
 
 export default function MapControls({ map, airportLayer }: Props) {
@@ -25,12 +26,7 @@ export default function MapControls({ map, airportLayer }: Props) {
   };
 
   const fetchAirport = async () => {
-    await airportLayer.load([
-      "runway",
-      "taxiway",
-      "apron",
-      "terminal",
-    ]);
+    await airportLayer.load();
   };
 
   return (
@@ -54,25 +50,11 @@ export default function MapControls({ map, airportLayer }: Props) {
 
       <button onClick={doSearch}>Go</button>
 
-      <button onClick={fetchAirport}>
-        Fetch Airport Data
-      </button>
+      <button onClick={fetchAirport}>Fetch Airport Data</button>
 
-      <button
-        onClick={() => toggleMapTransparency(map)}
-      >
-        Toggle Map
-      </button>
-        <button
-        
-      >
-        placeholder_for_boundary
-      </button>
-              <button
-        
-      >
-        placeholder_for_details
-      </button>
+      <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
+      <button>placeholder_for_boundary</button>
+      <button>placeholder_for_details</button>
     </div>
   );
 }
