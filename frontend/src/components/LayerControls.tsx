@@ -1,10 +1,11 @@
 "use client";
 
 import AirportLayer, { FeatureName } from "@/lib/osm/airportLayer";
-import { useState } from "react";
 
 type Props = {
   airportLayer: AirportLayer;
+  activeFeatures: Record<FeatureName, boolean>;
+  onFeaturesChange: (features: Record<FeatureName, boolean>) => void;
 };
 
 const initialLayersVisibilityState: Record<FeatureName, boolean> = {
@@ -28,17 +29,13 @@ const featureGroups: { title: string; features: FeatureName[] }[] = [
   { title: "Boundary", features: ["aerodrome"] },
 ];
 
-export default function LayerControls({ airportLayer }: Props) {
-  const [layersVisibilityState, setLayersVisibilityState] = useState(
-    initialLayersVisibilityState,
-  );
-
+export default function LayerControls({ airportLayer, activeFeatures, onFeaturesChange }: Props) {
   const toggleFeature = (feature: FeatureName, visible: boolean) => {
-    setLayersVisibilityState((prev) => ({
-      ...prev,
+    const newFeatures = {
+      ...activeFeatures,
       [feature]: visible,
-    }));
-
+    };
+    onFeaturesChange(newFeatures);
     airportLayer.toggleFeature(feature);
   };
 
@@ -46,7 +43,7 @@ export default function LayerControls({ airportLayer }: Props) {
     <div
       style={{
         position: "absolute",
-        top: 70,
+        top: 120,
         left: 10,
         background: "white",
         padding: 12,
@@ -64,7 +61,7 @@ export default function LayerControls({ airportLayer }: Props) {
             <label key={feature} style={{ display: "block", paddingLeft: 8 }}>
               <input
                 type="checkbox"
-                checked={layersVisibilityState[feature]}
+                checked={activeFeatures[feature]}
                 onChange={(e) => toggleFeature(feature, e.target.checked)}
               />{" "}
               {feature.replace("_", " ")}

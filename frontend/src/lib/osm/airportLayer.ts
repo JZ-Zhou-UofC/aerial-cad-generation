@@ -22,6 +22,9 @@ export default class AirportLayer {
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
   > = {};
 
+  // Store raw feature data grouped by type
+  featureData: Partial<Record<FeatureName, any[]>> = {};
+
   constructor(map: google.maps.Map) {
     this.map = map;
   }
@@ -32,6 +35,7 @@ export default class AirportLayer {
     );
 
     this.layers = {};
+    this.featureData = {};
   }
 
   addOverlay(
@@ -53,8 +57,40 @@ export default class AirportLayer {
     const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
+    this.groupElementsByFeature(data.elements);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data.elements.forEach((el: any) => this.renderElement(el));
+  }
+
+  private groupElementsByFeature(elements: any[]) {
+    this.featureData = {};
+    elements.forEach((el) => {
+      let feature: string | undefined = el.tags?.aeroway || el.tags?.building;
+
+      // detect if it's grass
+      if (
+        !feature &&
+        (el.tags?.landcover === "grass" ||
+          el.tags?.landuse === "grass" ||
+          el.tags?.natural === "grassland" ||
+          (el.tags?.aeroway && el.tags?.surface === "grass"))
+      ) {
+        feature = "grass";
+      }
+
+      if (feature) {
+        const feat = feature as FeatureName;
+        if (!this.featureData[feat]) {
+          this.featureData[feat] = [];
+        }
+        this.featureData[feat]!.push(el);
+      }
+    });
+  }
+
+  getFeatureData(): Partial<Record<FeatureName, any[]>> {
+    return this.featureData;
   }
 
   // Render OSM element based on its tags and geometry type
