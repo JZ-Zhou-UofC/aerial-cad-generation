@@ -51,8 +51,7 @@ temp/
 # =====================================
 # Python
 # =====================================
-backend/app/__pycache__/*
-backend/app/routers/__pycache__/*
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
