@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException,Query
-
+from fastapi.encoders import jsonable_encoder
+import json
 
 router = APIRouter(prefix="/map", tags=["map"])
 
@@ -17,5 +18,7 @@ async def get_osm_json(
 
 @router.post("/save-airport-data/")
 async def save_airport_data(body: dict):
-    print(body)
+    json_body = jsonable_encoder(body)
+    print(json.dumps(json_body, indent=4))
+    return {"status": "success", "message": "Data received"}
 
