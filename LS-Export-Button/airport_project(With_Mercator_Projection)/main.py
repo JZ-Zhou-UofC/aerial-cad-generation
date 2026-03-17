@@ -22,7 +22,7 @@ def process_airport_request(icao: str, zoom=16):
     # Phase 3: Outputs
     mask = render_adaptive_mask(geo_data, bbox_ex, zoom, sat_img.size)
     
-    save_dir = "/Users/letiansong/Desktop/ENSF_609:610/CAD-gen-reasearch/airport_project(With_Mercator_Projection)/outputs"
+    save_dir = "/Users/jbs/Desktop/Winter/ENSF609:610 Capstone Project/Outputs"
     os.makedirs(save_dir, exist_ok=True)
     dxf_path = os.path.join(save_dir, f"{icao}_geospatial.dxf")
 

@@ -1,14 +1,35 @@
 import ezdxf
 from core.geometry import latlon_to_meters, douglas_peucker
 
+# Default colours to match transoft output
+
 LAYER_CONFIG = {
-    "Runway": {"color": 2},          # Yellow (Brightest for main infra)
-    "Taxiway": {"color": 3},         # Green (Classic aviation chart style)
-    "Apron": {"color": 6},           # Magenta (Pops against the runways)
-    "Civil Buildings": {"color": 4}, # Cyan (Clean and architectural)
-    "Parking": {"color": 210},       # Bright Orange (High visibility)
-    "Unclassified": {"color": 1}     # Red (Alerts you to "unknown" data)
+    "Runway": {"color": 2, "lineweight": 50},            # Yellow
+    "Taxiway": {"color": 2, "lineweight": 50},           # Yellow
+    "Stopway": {"color": 30, "lineweight": 25},          # Orange-ish (closest match)
+    "Apron": {"color": 6, "lineweight": 25},             # Magenta
+    "Terminal": {"color": 7, "lineweight": 25},          # White/Black (depends on background)
+    "Hangar": {"color": 8, "lineweight": 25},            # Gray
+    "Parking_Position": {"color": 7, "lineweight": 25},  # White
+    "Grass": {"color": 3, "lineweight": 25},             # Green
+    "Aerodrome": {"color": 7, "lineweight": 25},         # White/Black boundary
+    "Unclassified": {"color": 1, "lineweight": 25},      # Red (Alerts you to "unknown" data)
 }
+
+# Contrast colours for better comparison visibility:
+
+# LAYER_CONFIG = {
+#     "Runway": {"color": 1, "lineweight": 50},            # Red
+#     "Taxiway": {"color": 5, "lineweight": 50},           # Blue
+#     "Stopway": {"color": 30, "lineweight": 25},          # Orange
+#     "Apron": {"color": 6, "lineweight": 25},             # Magenta
+#     "Terminal": {"color": 4, "lineweight": 25},          # Cyan
+#     "Hangar": {"color": 8, "lineweight": 25},            # Gray
+#     "Parking_Position": {"color": 7, "lineweight": 25},  # White
+#     "Grass": {"color": 3, "lineweight": 25},             # Green
+#     "Aerodrome": {"color": 2, "lineweight": 25},         # Yellow
+#     "Unclassified": {"color": 9, "lineweight": 25},      # Light Gray
+# }
 
 def export_to_cad(geo_data, output_path, ref_lat_lon):
     doc = ezdxf.new(setup=True)
@@ -29,8 +50,7 @@ def export_to_cad(geo_data, output_path, ref_lat_lon):
         config = LAYER_CONFIG.get(layer_name, LAYER_CONFIG["Unclassified"])
         
         if layer_name not in doc.layers:
-            # We only pass 'color' now; lineweight stays at CAD default
-            doc.layers.add(name=layer_name, color=config['color'])
+            doc.layers.add(name=layer_name, color=config['color'], lineweight=config.get('lineweight'))
 
         geometry = feature.get('geometry', [])
         if not geometry: 
