@@ -14,7 +14,6 @@ export function renderRunway(
 
   return new google.maps.Polygon({
     paths:path,
->>>>>>> main
     fillColor: style.fillColor,
     fillOpacity: style.fillOpacity,
     strokeColor: style.strokeColor,
@@ -46,11 +45,7 @@ export function renderDefault(
 
   if (style.render === "polygon") {
     return new google.maps.Polygon({
-<<<<<<< HEAD
-      paths: path,
-=======
       paths:path,
->>>>>>> main
       fillColor: style.fillColor,
       fillOpacity: style.fillOpacity,
       strokeColor: style.strokeColor,
