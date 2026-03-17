@@ -13,9 +13,6 @@ export function renderRunway(
   );
 
   return new google.maps.Polygon({
-<<<<<<< HEAD
-    paths: path,
-=======
     paths:path,
 >>>>>>> main
     fillColor: style.fillColor,
