@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
+import { saveAirportData } from "./Utilities/Helper";
 
 type Props = {
   map: google.maps.Map;
@@ -11,33 +12,6 @@ type Props = {
 
 export default function MapControls({ map, airportLayer }: Props) {
   const [search, setSearch] = useState("");
-const [isLoading, setIsLoading] = useState(false); 
-
-  const saveAirportData = async () => {
-    const data = airportLayer.getFeatureData();
-    
-    // Check if there is data to save
-    if (!data || Object.keys(data).length === 0) {
-      alert("No data to export! Fetch an airport first.");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch("http://127.0.0.1:8000/map/save-airport-data/", { 
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) alert("Saved!");
-    } catch (error) {
-      console.error("Save error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const doSearch = () => {
     if (!search) return;
 
@@ -81,7 +55,7 @@ const [isLoading, setIsLoading] = useState(false);
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
       <button>placeholder_for_boundary</button>
       <button>placeholder_for_details</button>
-      <button onClick={saveAirportData}>Export</button>
+      <button onClick ={() => saveAirportData(airportLayer)}>Export</button>
     </div>
   );
 }
