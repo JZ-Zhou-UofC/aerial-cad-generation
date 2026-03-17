@@ -1,68 +1,69 @@
 // Airport Data Visualization Configuration
 
+const baseThickness = 2;
+
 export const aerowayStyles = {
   // roads / areas
   runway: {
     render: "line",
-    strokeColor: "#d32f2f", // deep red
-    strokeWeight: 6,
-    strokeOpacity: 1.0,
+    strokeColor: "#FFFF00", // AutoCAD "Yellow" (Runway Taxipath)
+    strokeWeight: 2*baseThickness,
+    strokeOpacity: 1,
   },
 
   taxiway: {
     render: "line",
-    strokeColor: "#f9a825", // aviation yellow
-    strokeWeight: 4,
-    strokeOpacity: 1.0,
+    strokeColor: "#FFFF00", // AutoCAD "Yellow" (Taxipath)
+    strokeWeight: 2*baseThickness,
+    strokeOpacity: 1,
   },
 
   stopway: {
     render: "line",
     strokeColor: "#ff7043", // orange-ish
-    strokeWeight: 3,
-    strokeOpacity: 0.8,
+    strokeWeight: baseThickness,
+    strokeOpacity: 1,
   },
 
   apron: {
     render: "polygon",
-    fillColor: "#1976d2", // blue surface
-    fillOpacity: 0.35,
-    strokeColor: "#0d47a1",
-    strokeWeight: 2,
+    fillColor: "#FF00FF", // AutoCAD "Magenta" (Apron-Limits)
+    fillOpacity: 0.0, // transparent fill
+    strokeColor: "#FF00FF",
+    strokeWeight: baseThickness,
   },
 
   // buildings
   terminal: {
     render: "polygon",
-    fillColor: "#7b1fa2", // purple building
-    fillOpacity: 0.5,
-    strokeColor: "#4a148c",
-    strokeWeight: 2,
+    fillColor: "#000000", // Black terminal, example output doesn't have buildings
+    fillOpacity: 0.1,
+    strokeColor: "#000000",
+    strokeWeight: baseThickness,
   },
 
   hangar: {
     render: "polygon",
-    fillColor: "#8e24aa", // darker purple
-    fillOpacity: 0.5,
-    strokeColor: "#4a148c",
-    strokeWeight: 2,
+    fillColor: "#E6E6E6", // Light gray for hangars
+    fillOpacity: 0.3,
+    strokeColor: "#E6E6E6",
+    strokeWeight: baseThickness,
   },
 
   parking_position: {
     render: "line",
-    fillColor: "#fbc02d", // yellow
-    fillOpacity: 0.4,
-    strokeColor: "#f9a825",
-    strokeWeight: 1.5,
+    strokeColor: "#ffffff",
+    strokeWeight: baseThickness,
+    strokeOpacity: 1,
   },
 
   // Groundcover
   grass: {
     render: "polygon",
     fillColor: "#81c784", // soft green
-    fillOpacity: 0.4,
+    fillOpacity: 0.2, // transparent fill
     strokeColor: "#4caf50",
-    strokeWeight: 1,
+    strokeWeight: baseThickness,
   },
 
   // Airport boundary
@@ -71,6 +72,6 @@ export const aerowayStyles = {
     fillColor: "#ffffff", // transparent/white
     fillOpacity: 0.0,
     strokeColor: "#000000", // black outline
-    strokeWeight: 2,
+    strokeWeight: baseThickness,
   },
 };

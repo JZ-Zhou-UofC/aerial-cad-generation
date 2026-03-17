@@ -33,6 +33,7 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
+frontend/Desktop/
 
 # =====================================
 # Build / coverage
@@ -47,9 +48,10 @@ coverage/
 tmp/
 temp/
 
-
 # =====================================
-# Backend (FastAPI)
+# Python
 # =====================================
-backend/Pipfile.lock
-backend/Pipfile
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
