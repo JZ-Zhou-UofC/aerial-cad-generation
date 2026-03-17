@@ -53,3 +53,5 @@ temp/
 # =====================================
 backend/Pipfile.lock
 backend/Pipfile
+backend/__pycache__/
+backend/*.pyc
