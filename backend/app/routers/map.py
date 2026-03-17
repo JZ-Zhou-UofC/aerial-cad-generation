@@ -15,3 +15,7 @@ async def get_osm_json(
 ):
     print("\n_implementate the get map from ")
 
+@router.post("/save-airport-data/")
+async def save_airport_data(body: dict):
+    print(body)
+

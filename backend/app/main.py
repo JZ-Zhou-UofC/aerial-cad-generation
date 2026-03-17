@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routers import map
+import app.routers.map as map
 import logging
 
 app = FastAPI(title="Aerial CAD Generation API")

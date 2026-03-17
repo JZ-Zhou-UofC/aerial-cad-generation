@@ -2,32 +2,41 @@
 
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
-import AirportLayer, { FeatureName } from "@/lib/osm/airportLayer";
+import AirportLayer from "@/lib/osm/airportLayer";
 
 type Props = {
   map: google.maps.Map;
   airportLayer: AirportLayer;
-  selectedAirport: string;
-  onAirportSelect: (icao: string) => void;
-  onExportCAD: () => void;
-  isExporting: boolean;
-  exportError: string;
-  airportFeatureData: Partial<Record<FeatureName, any[]>>;
-  onFetchAirport: () => void;
 };
 
-export default function MapControls({
-  map,
-  airportLayer,
-  selectedAirport,
-  onAirportSelect,
-  onExportCAD,
-  isExporting,
-  exportError,
-  airportFeatureData,
-  onFetchAirport,
-}: Props) {
+export default function MapControls({ map, airportLayer }: Props) {
   const [search, setSearch] = useState("");
+const [isLoading, setIsLoading] = useState(false); 
+
+  const saveAirportData = async () => {
+    const data = airportLayer.getFeatureData();
+    
+    // Check if there is data to save
+    if (!data || Object.keys(data).length === 0) {
+      alert("No data to export! Fetch an airport first.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://127.0.0.1:8000/map/save-airport-data/", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) alert("Saved!");
+    } catch (error) {
+      console.error("Save error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const doSearch = () => {
     if (!search) return;
@@ -38,10 +47,12 @@ export default function MapControls({
       if (status === "OK" && results?.[0]) {
         map.setCenter(results[0].geometry.location);
         map.setZoom(14);
-        // Assume search is ICAO for simplicity; in real app, parse or confirm
-        onAirportSelect(search.toUpperCase());
       }
     });
+  };
+
+  const fetchAirport = async () => {
+    await airportLayer.load();
   };
 
   return (
@@ -53,32 +64,24 @@ export default function MapControls({
         background: "white",
         padding: 10,
         display: "flex",
-        flexDirection: "row",
         gap: 8,
-        alignItems: "center",
       }}
     >
       <input
-        placeholder="Search airport (ICAO)"
+        placeholder="Search airport"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && doSearch()}
       />
+
       <button onClick={doSearch}>Go</button>
-      <button onClick={onFetchAirport}>Fetch Airport Data</button>
+
+      <button onClick={fetchAirport}>Fetch Airport Data</button>
+
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
-      <button onClick={onExportCAD} disabled={isExporting}>
-        {isExporting ? "Exporting..." : "Export CAD"}
-      </button>
-      {selectedAirport && <div>Selected: {selectedAirport}</div>}
-      {Object.keys(airportFeatureData).length > 0 && (
-        <div>
-          Features: {Object.entries(airportFeatureData).map(([feat, data]) => `${feat}:${data.length}`).join(', ')}
-        </div>
-      )}
-      {exportError && <div style={{ color: "red" }}>Error: {exportError}</div>}
-      <button>Boundary</button>
-      <button>Details</button>
+      <button>placeholder_for_boundary</button>
+      <button>placeholder_for_details</button>
+      <button onClick={saveAirportData}>Export</button>
     </div>
   );
 }
