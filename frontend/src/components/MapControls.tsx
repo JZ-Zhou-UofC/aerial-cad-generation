@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
+import { exportCAD } from "@/lib/api/backend";
+
 
 type Props = {
   map: google.maps.Map;
@@ -10,7 +12,10 @@ type Props = {
 };
 
 export default function MapControls({ map, airportLayer }: Props) {
-  const [search, setSearch] = useState("");
+
+
+
+  const [search, setSearch] = useState("yvr");
 
   const doSearch = () => {
     if (!search) return;
@@ -33,6 +38,28 @@ export default function MapControls({ map, airportLayer }: Props) {
 
   const fetchAirport = async () => {
     await airportLayer.load();
+  };
+
+  const Export = async () => {
+    const data = {
+      bounds: airportLayer.bounds
+        ? {
+          north: airportLayer.bounds.getNorthEast().lat(),
+          east: airportLayer.bounds.getNorthEast().lng(),
+          south: airportLayer.bounds.getSouthWest().lat(),
+          west: airportLayer.bounds.getSouthWest().lng(),
+        }
+        : null,
+      elements: airportLayer.elements,
+      visibleFeatures: Array.from(airportLayer.visibleFeatures),
+    };
+
+    try {
+      const result = await exportCAD(data);
+      console.log("Export success:", result);
+    } catch (err) {
+      console.error("Export error:", err);
+    }
   };
 
   return (
@@ -60,7 +87,7 @@ export default function MapControls({ map, airportLayer }: Props) {
 
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
       <button>placeholder_for_boundary</button>
-       <button onClick={() => toggleMapTransparency(map)}>Export</button>
+      <button onClick={() => Export()}>Export</button>
     </div>
   );
 }
