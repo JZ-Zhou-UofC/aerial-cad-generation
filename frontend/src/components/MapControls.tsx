@@ -86,6 +86,7 @@ export default function MapControls({ map, airportLayer }: Props) {
       <button onClick={fetchAirport}>Fetch Airport Data</button>
 
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
+            <button onClick={() => {airportLayer.test()}}>test</button>
       <button>placeholder_for_boundary</button>
       <button onClick={() => Export()}>Export</button>
     </div>

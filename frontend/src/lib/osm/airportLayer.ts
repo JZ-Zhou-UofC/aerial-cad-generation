@@ -26,26 +26,11 @@ export type OSMElement = {
   tags: Record<string, string>;
   geometry: { lat: number; lon: number }[];
 };
-const detectGrassFeature = (
-  feature: string | undefined,
-  tags?: Record<string, string>,
-): string | undefined => {
-  if (
-    !feature &&
-    (tags?.landcover === "grass" ||
-      tags?.landuse === "grass" ||
-      tags?.natural === "grassland" ||
-      (tags?.aeroway && tags?.surface === "grass"))
-  ) {
-    return "grass";
-  }
 
-  return feature;
-}
 export default class AirportLayer {
   map: google.maps.Map;
   bounds: google.maps.LatLngBounds | null = null;
-  // Each feature has its own overlay array
+
   layers: Record<
     string,
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
@@ -81,13 +66,12 @@ export default class AirportLayer {
     this.layers = {};
     this.elements = [];
     this.bounds = null;
-
   }
 
   setBounds(bounds: google.maps.LatLngBounds) {
-    console.log(bounds)
     this.bounds = bounds;
   }
+
   addOverlay(
     feature: string,
     overlay: google.maps.Polygon | google.maps.Polyline | google.maps.Marker,
@@ -97,47 +81,47 @@ export default class AirportLayer {
     }
 
     this.layers[feature].push(overlay);
-
-    // NEW: apply visibility based on state
-    overlay.setMap(
-      this.visibleFeatures.has(feature as FeatureName) ? this.map : null,
-    );
+    const isVisible = this.visibleFeatures.has(feature as FeatureName);
+    overlay.setMap(isVisible ? this.map : null);
   }
 
-  // Load and Render airport data within current map bounds
   async load() {
-    console.log("LOadddddddd")
-    console.log(this.bounds)
-    if (!this.bounds) return;
-    const data = await fetchAirportData(this.bounds);
-    console.log(data)
+    const bounds = this.map.getBounds();
+    if (!bounds) return;
 
+    this.bounds = bounds;
+
+    const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
     this.elements = data.elements;
 
-    data.elements.forEach((el: OSMElement) => this.renderElement(el));
+    this.elements.forEach((el: OSMElement) => this.renderElement(el));
   }
 
   renderElement(el: OSMElement) {
-
     if (!el?.geometry) return;
 
-    // detect feature type
     let feature: string | undefined =
       el.tags?.aeroway || el.tags?.building;
 
-    // detect if it's grass
-    feature = detectGrassFeature(feature, el.tags)
+    // inline grass detection (old logic)
+    if (
+      !feature &&
+      (el.tags?.landcover === "grass" ||
+        el.tags?.landuse === "grass" ||
+        el.tags?.natural === "grassland" ||
+        (el.tags?.aeroway && el.tags?.surface === "grass"))
+    ) {
+      feature = "grass";
+    }
 
     if (!feature) return;
 
     const style = aerowayStyles[feature as keyof typeof aerowayStyles];
     if (!style) return;
 
-    const renderStyle = style;
-    console.log("rendercalled???")
-    const overlay = renderDefault(this.map, el, renderStyle);
+    const overlay = renderDefault(this.map, el, style);
     if (!overlay) return;
 
     this.addOverlay(feature, overlay);
@@ -152,13 +136,11 @@ export default class AirportLayer {
 
     const overlays = this.layers[feature];
     if (!overlays) return;
-
     overlays.forEach((o) => o.setMap(visible ? this.map : null));
   }
 
   toggleFeature(feature: string) {
-    const visible = this.visibleFeatures.has(feature as FeatureName);
-    this.setVisible(feature, !visible);
+    const isVisible = this.visibleFeatures.has(feature as FeatureName);
+    this.setVisible(feature, !isVisible);
   }
 }
-

@@ -30,7 +30,6 @@ export function renderDefault(
   style: any
 ) {
 
-  console.log(map,element)
   const path = element.geometry.map((p: any) => ({
     lat: p.lat,
     lng: p.lon,
