@@ -19,11 +19,11 @@ const DEFAULT_AIRPORT_BOUNDS = {
   east: -60.34465834075927,
 } as const;
 
-type OSMElement = {
+export type OSMElement = {
   id: number;
   type: string;
-  tags?: Record<string, string>;
-  geometry?: { lat: number; lon: number }[];
+  tags: Record<string, string>;
+  geometry: { lat: number; lon: number }[];
 };
 
 export default class AirportLayer {
@@ -96,6 +96,7 @@ export default class AirportLayer {
     console.log(this.bounds);
     if (!this.bounds) return;
     const data = await fetchAirportData(this.bounds);
+    console.log(data);
 
     if (!data?.elements?.length) return;
 
@@ -137,7 +138,7 @@ export default class AirportLayer {
     }
   }
 
-  renderElements(elements: any[]) {
+  renderElements(elements: OSMElement[]) {
     // avoid duplicate elements
     const seen = new Set<number>();
 
@@ -149,7 +150,7 @@ export default class AirportLayer {
     }
   }
 
-  renderElement(el: any) {
+  renderElement(el: OSMElement) {
     if (!el) return;
 
     const isRelation = el.type === "relation";

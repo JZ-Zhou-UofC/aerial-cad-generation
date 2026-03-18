@@ -1,3 +1,4 @@
+import { OSMElement } from "./airportLayer";
 import {
   extractWayPath,
   extractRelationPaths,
