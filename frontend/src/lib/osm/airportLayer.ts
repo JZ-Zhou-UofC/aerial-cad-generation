@@ -12,20 +12,52 @@ export type FeatureName =
   | "aerodrome"
   | "grass";
 
+const DEFAULT_AIRPORT_BOUNDS = {
+  south: 53.28409862700042,
+  west: -60.48035665924071,
+  north: 53.34332482894499,
+  east: -60.34465834075927,
+} as const;
+
+type OSMElement = {
+  id: number;
+  type: string;
+  tags?: Record<string, string>;
+  geometry?: { lat: number; lon: number }[];
+};
+
 export default class AirportLayer {
   // toggle rendering of unknown features (for debugging)
   RENDER_UNKNOWN = true;
 
   map: google.maps.Map;
 
-  // Each feature has its own layer of overlays for easy toggling
+  bounds: google.maps.LatLngBounds | null = null;
+
   layers: Record<
     string,
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
   > = {};
 
+  elements: OSMElement[] = [];
+
+  visibleFeatures: Set<FeatureName> = new Set([
+    "runway",
+    "taxiway",
+    "stopway",
+    "apron",
+    "building",
+    "parking_position",
+    "aerodrome",
+    "grass",
+  ]);
+
   constructor(map: google.maps.Map) {
     this.map = map;
+    this.bounds = new google.maps.LatLngBounds(
+      { lat: DEFAULT_AIRPORT_BOUNDS.south, lng: DEFAULT_AIRPORT_BOUNDS.west },
+      { lat: DEFAULT_AIRPORT_BOUNDS.north, lng: DEFAULT_AIRPORT_BOUNDS.east },
+    );
   }
 
   clear() {
@@ -34,8 +66,14 @@ export default class AirportLayer {
     );
 
     this.layers = {};
+    this.elements = [];
+    this.bounds = null;
   }
 
+  setBounds(bounds: google.maps.LatLngBounds) {
+    console.log(bounds);
+    this.bounds = bounds;
+  }
   addOverlay(
     feature: string,
     overlay: google.maps.Polygon | google.maps.Polyline | google.maps.Marker,
@@ -45,14 +83,20 @@ export default class AirportLayer {
     }
 
     this.layers[feature].push(overlay);
+
+    // NEW: apply visibility based on state
+    overlay.setMap(
+      this.visibleFeatures.has(feature as FeatureName) ? this.map : null,
+    );
   }
 
   // Load and Render airport data within current map bounds
   async load() {
-    const bounds = this.map.getBounds();
-    if (!bounds) return;
+    console.log("LOadddddddd");
+    console.log(this.bounds);
+    if (!this.bounds) return;
+    const data = await fetchAirportData(this.bounds);
 
-    const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
     const elementMap = this.buildElementMap(data.elements);
@@ -162,19 +206,21 @@ export default class AirportLayer {
     overlays.forEach((o) => this.addOverlay(feature, o));
   }
 
-  // Feature layer toggling functions
-  toggleFeature(feature: string) {
-    const overlays = this.layers[feature];
-    if (!overlays?.length) return;
-
-    const visible = overlays[0].getMap() !== null;
-    this.setVisible(feature, !visible);
-  }
-
   setVisible(feature: string, visible: boolean) {
+    if (visible) {
+      this.visibleFeatures.add(feature as FeatureName);
+    } else {
+      this.visibleFeatures.delete(feature as FeatureName);
+    }
+
     const overlays = this.layers[feature];
     if (!overlays) return;
 
     overlays.forEach((o) => o.setMap(visible ? this.map : null));
+  }
+  // Feature layer toggling functions
+  toggleFeature(feature: string) {
+    const visible = this.visibleFeatures.has(feature as FeatureName);
+    this.setVisible(feature, !visible);
   }
 }
