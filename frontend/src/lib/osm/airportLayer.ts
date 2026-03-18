@@ -21,9 +21,21 @@ const DEFAULT_AIRPORT_BOUNDS = {
 
 export type OSMElement = {
   id: number;
-  type: string;
-  tags: Record<string, string>;
-  geometry: { lat: number; lon: number }[];
+  type: "node" | "way" | "relation";
+  tags?: Record<string, string>;
+  geometry?: { lat: number; lon: number }[];
+
+  members?: {
+    geometry?: { lat: number; lon: number }[];
+    ref: number;
+    role?: string;
+    type: string;
+  }[];
+
+  _meta?: {
+    parents: number[];
+    role?: string;
+  };
 };
 
 export default class AirportLayer {
@@ -74,6 +86,7 @@ export default class AirportLayer {
     console.log(bounds);
     this.bounds = bounds;
   }
+
   addOverlay(
     feature: string,
     overlay: google.maps.Polygon | google.maps.Polyline | google.maps.Marker,
@@ -83,21 +96,17 @@ export default class AirportLayer {
     }
 
     this.layers[feature].push(overlay);
-
-    // NEW: apply visibility based on state
-    overlay.setMap(
-      this.visibleFeatures.has(feature as FeatureName) ? this.map : null,
-    );
+    const isVisible = this.visibleFeatures.has(feature as FeatureName);
+    overlay.setMap(isVisible ? this.map : null);
   }
 
-  // Load and Render airport data within current map bounds
   async load() {
-    console.log("LOadddddddd");
-    console.log(this.bounds);
-    if (!this.bounds) return;
-    const data = await fetchAirportData(this.bounds);
-    console.log(data);
+    const bounds = this.map.getBounds();
+    if (!bounds) return;
 
+    this.bounds = bounds;
+
+    const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
     const elementMap = this.buildElementMap(data.elements);
@@ -105,15 +114,18 @@ export default class AirportLayer {
     this.renderElements(data.elements);
   }
 
-  buildElementMap(elements: any[]) {
-    const map = new Map<number, any>();
+  buildElementMap(elements: OSMElement[]) {
+    const map = new Map<number, OSMElement>();
     for (const el of elements) {
       map.set(el.id, el);
     }
     return map;
   }
 
-  attachRelationLinks(elements: any[], elementMap: Map<number, any>) {
+  attachRelationLinks(
+    elements: OSMElement[],
+    elementMap: Map<number, OSMElement>,
+  ) {
     for (const el of elements) {
       if (el.type !== "relation" || !el.members) continue;
 
@@ -156,7 +168,7 @@ export default class AirportLayer {
     const isRelation = el.type === "relation";
 
     // Skip relation members (will be handled by relation rendering)
-    if (!isRelation && el._meta?.parents?.length > 0) return;
+    if (!isRelation && (el._meta?.parents?.length ?? 0) > 0) return;
     // if it's not a relation and has no geometry, skip
     if (!isRelation && !el.geometry) return;
 
@@ -216,12 +228,11 @@ export default class AirportLayer {
 
     const overlays = this.layers[feature];
     if (!overlays) return;
-
     overlays.forEach((o) => o.setMap(visible ? this.map : null));
   }
   // Feature layer toggling functions
   toggleFeature(feature: string) {
-    const visible = this.visibleFeatures.has(feature as FeatureName);
-    this.setVisible(feature, !visible);
+    const isVisible = this.visibleFeatures.has(feature as FeatureName);
+    this.setVisible(feature, !isVisible);
   }
 }
