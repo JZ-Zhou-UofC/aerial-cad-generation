@@ -20,13 +20,28 @@ const DEFAULT_AIRPORT_BOUNDS = {
   east: -60.34465834075927,
 } as const;
 
-type OSMElement = {
+export type OSMElement = {
   id: number;
   type: string;
-  tags?: Record<string, string>;
-  geometry?: { lat: number; lon: number }[];
+  tags: Record<string, string>;
+  geometry: { lat: number; lon: number }[];
 };
+const detectGrassFeature = (
+  feature: string | undefined,
+  tags?: Record<string, string>,
+): string | undefined => {
+  if (
+    !feature &&
+    (tags?.landcover === "grass" ||
+      tags?.landuse === "grass" ||
+      tags?.natural === "grassland" ||
+      (tags?.aeroway && tags?.surface === "grass"))
+  ) {
+    return "grass";
+  }
 
+  return feature;
+}
 export default class AirportLayer {
   map: google.maps.Map;
   bounds: google.maps.LatLngBounds | null = null;
@@ -95,7 +110,7 @@ export default class AirportLayer {
     console.log(this.bounds)
     if (!this.bounds) return;
     const data = await fetchAirportData(this.bounds);
-
+    console.log(data)
 
     if (!data?.elements?.length) return;
 
@@ -105,6 +120,7 @@ export default class AirportLayer {
   }
 
   renderElement(el: OSMElement) {
+
     if (!el?.geometry) return;
 
     // detect feature type
@@ -120,7 +136,7 @@ export default class AirportLayer {
     if (!style) return;
 
     const renderStyle = style;
-
+    console.log("rendercalled???")
     const overlay = renderDefault(this.map, el, renderStyle);
     if (!overlay) return;
 
@@ -146,19 +162,3 @@ export default class AirportLayer {
   }
 }
 
-const detectGrassFeature = (
-  feature: string | undefined,
-  tags?: Record<string, string>,
-): string | undefined => {
-  if (
-    !feature &&
-    (tags?.landcover === "grass" ||
-      tags?.landuse === "grass" ||
-      tags?.natural === "grassland" ||
-      (tags?.aeroway && tags?.surface === "grass"))
-  ) {
-    return "grass";
-  }
-
-  return feature;
-}

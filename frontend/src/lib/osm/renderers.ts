@@ -1,8 +1,9 @@
+import { OSMElement } from "./airportLayer";
 import { buildBufferedPolygon } from "./geometry";
 
 export function renderRunway(
   map: google.maps.Map,
-  element: any,
+  element: OSMElement,
   style: any
 ) {
   const width = parseFloat(element.tags.width);
@@ -25,9 +26,11 @@ export function renderRunway(
 
 export function renderDefault(
   map: google.maps.Map,
-  element: any,
+  element: OSMElement,
   style: any
 ) {
+
+  console.log(map,element)
   const path = element.geometry.map((p: any) => ({
     lat: p.lat,
     lng: p.lon,
