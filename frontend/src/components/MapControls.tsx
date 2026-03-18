@@ -60,7 +60,7 @@ export default function MapControls({ map, airportLayer }: Props) {
 
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
       <button>placeholder_for_boundary</button>
-      <button>placeholder_for_details</button>
+       <button onClick={() => toggleMapTransparency(map)}>Export</button>
     </div>
   );
 }

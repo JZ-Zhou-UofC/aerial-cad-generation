@@ -1,4 +1,4 @@
-import { fetchAirportData } from "./apiOverpass";
+import { fetchAirportData } from "../api/overpass";
 import { aerowayStyles } from "./styles";
 import { renderDefault } from "./renderers";
 
