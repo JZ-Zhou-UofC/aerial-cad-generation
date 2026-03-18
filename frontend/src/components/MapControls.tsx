@@ -23,6 +23,12 @@ export default function MapControls({ map, airportLayer }: Props) {
         map.setZoom(14);
       }
     });
+    airportLayer.clear();
+    const bounds = map.getBounds();
+    if (bounds) {
+      airportLayer.setBounds(bounds);
+    }
+
   };
 
   const fetchAirport = async () => {
