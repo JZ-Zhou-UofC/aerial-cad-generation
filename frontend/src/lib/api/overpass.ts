@@ -50,8 +50,8 @@ export async function fetchAirportData(bounds: google.maps.LatLngBounds) {
   relation["aeroway"]["surface"="grass"](${south},${west},${north},${east});
 
   // Airport boundary
-  way["aerodrome"](${south},${west},${north},${east});
-  relation["aerodrome"](${south},${west},${north},${east});
+  way["aeroway"="aerodrome"](${south},${west},${north},${east});
+  relation["aeroway"="aerodrome"](${south},${west},${north},${east});
 );
 
 // for all current result sets, fetch all child nodes/ways insided them
