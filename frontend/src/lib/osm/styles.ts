@@ -18,7 +18,17 @@ export type PolygonStyle = {
 
 export type AerowayStyle = LineStyle | PolygonStyle;
 
-const baseThickness = 2;
+const BASE_THICKNESS = 2;
+
+//or
+export const Thickness = {
+  Thin: 1,
+  Base: 2,
+  Thick: 4,
+} as const;
+
+// usage 
+//const thickness: Thickness = Thickness.Base;
 
 export const aerowayStyles = {
   // roads / areas
