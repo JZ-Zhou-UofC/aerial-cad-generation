@@ -1,6 +1,7 @@
 "use client";
 
-import AirportLayer, { FeatureName } from "@/lib/osm/airportLayer";
+import AirportLayer from "@/lib/osm/airportLayer";
+import { FeatureName } from "@/lib/osm/types";
 import { useState } from "react";
 
 type Props = {

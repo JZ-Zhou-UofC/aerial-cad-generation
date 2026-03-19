@@ -1,17 +1,12 @@
 import { fetchAirportData } from "../api/overpass";
+import { FeatureName, OSMElement } from "./types";
 import { aerowayStyles } from "./styles";
 import { renderWay, renderRelation } from "./renderers";
-
-export type FeatureName =
-  | "runway"
-  | "taxiway"
-  | "stopway"
-  | "apron"
-  | "building"
-  | "building"
-  | "parking_position"
-  | "aerodrome"
-  | "grass";
+import {
+  attachRelationLinks,
+  buildElementMap,
+  detectElementFeature,
+} from "./prepareElements";
 
 const DEFAULT_AIRPORT_BOUNDS = {
   south: 53.28409862700042,
@@ -20,28 +15,10 @@ const DEFAULT_AIRPORT_BOUNDS = {
   east: -60.34465834075927,
 } as const;
 
-export type OSMElement = {
-  id: number;
-  type: "node" | "way" | "relation";
-  tags?: Record<string, string>;
-  geometry?: { lat: number; lon: number }[];
-
-  members?: {
-    geometry?: { lat: number; lon: number }[]; // for ways that are members of relations, we include their geometry directly for easier rendering
-    ref: number;
-    role?: string;
-    type: string;
-  }[];
-
-  _meta?: {
-    parents: number[];
-    role?: string;
-  };
-};
-
 export default class AirportLayer {
   // toggle rendering of unknown features (for debugging)
   RENDER_UNKNOWN = true;
+
   map: google.maps.Map;
 
   bounds: google.maps.LatLngBounds | null = null;
@@ -59,7 +36,6 @@ export default class AirportLayer {
     "taxiway",
     "stopway",
     "apron",
-    "building",
     "building",
     "parking_position",
     "aerodrome",
@@ -111,45 +87,9 @@ export default class AirportLayer {
     const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
-    const elementMap = this.buildElementMap(data.elements);
-    this.attachRelationLinks(data.elements, elementMap);
+    const elementMap = buildElementMap(data.elements);
+    attachRelationLinks(data.elements, elementMap);
     this.renderElements(data.elements);
-  }
-
-  buildElementMap(elements: OSMElement[]) {
-    const map = new Map<number, OSMElement>();
-    for (const el of elements) {
-      map.set(el.id, el);
-    }
-    return map;
-  }
-
-  attachRelationLinks(
-    elements: OSMElement[],
-    elementMap: Map<number, OSMElement>,
-  ) {
-    for (const el of elements) {
-      if (el.type !== "relation" || !el.members) continue;
-
-      for (const member of el.members) {
-        const child = elementMap.get(member.ref);
-        if (!child) {
-          console.warn("Missing child for member:", member);
-          continue;
-        }
-        // separate runtime metadata
-        child._meta ??= {
-          parents: [],
-          role: undefined,
-        };
-
-        child._meta.parents.push(el.id);
-
-        if (member.role) {
-          child._meta.role = member.role;
-        }
-      }
-    }
   }
 
   renderElements(elements: OSMElement[]) {
@@ -169,68 +109,36 @@ export default class AirportLayer {
 
     const isRelation = el.type === "relation";
 
-    // Skip relation members (will be handled by relation rendering)
     if (!isRelation && (el._meta?.parents?.length ?? 0) > 0) return;
-    // if it's not a relation and has no geometry, skip
     if (!isRelation && !el.geometry) return;
-    if (!el) return;
 
-    // detect feature type
-    let feature: string | undefined;
+    const featureRaw = detectElementFeature(el, aerowayStyles);
 
-    // detect if building/grass
-    if (el.tags?.building) {
-      feature = "building";
-    } else if (el.tags?.aeroway) {
-      feature = el.tags.aeroway;
-    } else if (
-      el.tags?.landcover === "grass" ||
-      el.tags?.landuse === "grass" ||
-      el.tags?.natural === "grassland" ||
-      (el.tags?.aeroway && el.tags?.surface === "grass")
-    ) {
-      feature = "grass";
-    }
+    let feature: keyof typeof aerowayStyles;
 
-    // fallback for unknown features
-    if (!feature || !aerowayStyles[feature as keyof typeof aerowayStyles]) {
+    if (!featureRaw) {
+      // debug: log unknown features to console
       console.warn("Unknown feature type:", {
         id: el.id,
         type: el.type,
         tags: el.tags,
       });
+
       if (!this.RENDER_UNKNOWN) return;
       feature = "unknown";
+    } else {
+      feature = featureRaw;
     }
 
-    // get style for feature
-    // fallback for unknown features
-    if (!feature || !aerowayStyles[feature as keyof typeof aerowayStyles]) {
-      console.warn("Unknown feature type:", {
-        id: el.id,
-        type: el.type,
-        tags: el.tags,
-      });
-      if (!this.RENDER_UNKNOWN) return;
-      feature = "unknown";
-    }
-
-    // get style for feature
-    const style = aerowayStyles[feature as keyof typeof aerowayStyles];
+    const style = aerowayStyles[feature];
     if (!style) return;
 
-    let overlays: (google.maps.Polygon | google.maps.Polyline)[] = [];
+    const overlays = isRelation
+      ? renderRelation(this.map, el, style)
+      : renderWay(this.map, el, style);
 
-    // render
-    if (isRelation) {
-      overlays = renderRelation(this.map, el, style);
-    } else {
-      overlays = renderWay(this.map, el, style);
-    }
+    if (!overlays.length) return;
 
-    if (!overlays?.length) return;
-
-    // Add each overlay individually
     overlays.forEach((o) => this.addOverlay(feature, o));
   }
 

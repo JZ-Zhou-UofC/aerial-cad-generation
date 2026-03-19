@@ -59,7 +59,7 @@ export async function fetchAirportData(bounds: google.maps.LatLngBounds) {
 
 out geom;
 `;
-console.log(query)
+  console.log(query);
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
     body: query,

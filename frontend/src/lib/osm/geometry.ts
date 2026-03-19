@@ -1,4 +1,5 @@
-import { OSMElement } from "./airportLayer";
+import { OSMElement } from "./types";
+import { LineStyle, PolygonStyle } from "./styles";
 
 export function extractWayPath(
   element: OSMElement,
@@ -59,7 +60,7 @@ export function extractRelationPaths(element: OSMElement): {
 export function createPolyline(
   map: google.maps.Map,
   path: google.maps.LatLngLiteral[],
-  style: any,
+  style: LineStyle,
 ) {
   return new google.maps.Polyline({
     path,
@@ -73,7 +74,7 @@ export function createPolyline(
 export function createPolygon(
   map: google.maps.Map,
   paths: google.maps.LatLngLiteral[] | google.maps.LatLngLiteral[][],
-  style: any,
+  style: PolygonStyle,
 ) {
   return new google.maps.Polygon({
     paths,
@@ -86,7 +87,12 @@ export function createPolygon(
 }
 
 // Helper functions
-function toLatLng(p: any): google.maps.LatLngLiteral {
+type OSMPoint = {
+  lat: number;
+  lon: number;
+};
+
+function toLatLng(p: OSMPoint): google.maps.LatLngLiteral {
   return { lat: p.lat, lng: p.lon };
 }
 

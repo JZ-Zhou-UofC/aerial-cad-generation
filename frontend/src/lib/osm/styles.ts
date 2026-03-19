@@ -1,4 +1,22 @@
+import { FeatureName } from "./types";
+
 // Airport Data Visualization Configuration
+export type LineStyle = {
+  render: "line";
+  strokeColor: string;
+  strokeWeight: number;
+  strokeOpacity: number;
+};
+
+export type PolygonStyle = {
+  render: "polygon";
+  fillColor: string;
+  fillOpacity: number;
+  strokeColor: string;
+  strokeWeight: number;
+};
+
+export type AerowayStyle = LineStyle | PolygonStyle;
 
 const baseThickness = 2;
 
@@ -76,4 +94,4 @@ export const aerowayStyles = {
     strokeColor: "#ff0077",
     strokeWeight: baseThickness,
   },
-};
+} satisfies Record<FeatureName | "unknown", AerowayStyle>;

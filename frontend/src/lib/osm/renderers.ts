@@ -1,4 +1,5 @@
-import { OSMElement } from "./airportLayer";
+import { OSMElement } from "./types";
+import { AerowayStyle } from "./styles";
 import {
   extractWayPath,
   extractRelationPaths,
@@ -6,11 +7,11 @@ import {
   createPolygon,
 } from "./geometry";
 
-// RENDER FUNCTIONS// RENDER FUNCTIONS
+// RENDER FUNCTIONS
 export function renderWay(
   map: google.maps.Map,
   element: OSMElement,
-  style: any,
+  style: AerowayStyle,
 ): (google.maps.Polygon | google.maps.Polyline)[] {
   const path = extractWayPath(element);
   if (!path) return [];
@@ -29,7 +30,7 @@ export function renderWay(
 export function renderRelation(
   map: google.maps.Map,
   element: OSMElement,
-  style: any,
+  style: AerowayStyle,
 ): (google.maps.Polygon | google.maps.Polyline)[] {
   const paths = extractRelationPaths(element);
   if (!paths || !paths.polygons?.length) return [];
