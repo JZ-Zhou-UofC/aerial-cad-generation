@@ -85,8 +85,13 @@ export default class AirportLayer {
     const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
 
+    // augmenting child elements with _meta (added parent relation ids and member role)
     const elementMap = buildElementMap(data.elements);
     attachRelationLinks(data.elements, elementMap);
+
+    // save elements
+    this.elements = data.elements;
+
     this.renderElements(data.elements);
   }
 

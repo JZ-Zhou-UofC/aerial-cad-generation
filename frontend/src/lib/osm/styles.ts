@@ -35,21 +35,21 @@ export const aerowayStyles = {
   runway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Runway Taxipath)
-    strokeWeight: 2 * baseThickness,
+    strokeWeight: 2 * BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
   taxiway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Taxipath)
-    strokeWeight: 2 * baseThickness,
+    strokeWeight: 2 * BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
   stopway: {
     render: "line",
     strokeColor: "#ff7043", // orange-ish
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
@@ -58,7 +58,7 @@ export const aerowayStyles = {
     fillColor: "#FF00FF", // AutoCAD "Magenta" (Apron-Limits)
     fillOpacity: 0.0, // transparent fill
     strokeColor: "#FF00FF",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // buildings
@@ -67,14 +67,14 @@ export const aerowayStyles = {
     fillColor: "#0000FF", // blue buildings, example output doesn't have buildings
     fillOpacity: 0.1,
     strokeColor: "#0000FF",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // operations (parking)
   parking_position: {
     render: "line",
     strokeColor: "#ffffff",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
@@ -84,7 +84,7 @@ export const aerowayStyles = {
     fillColor: "#81c784", // soft green
     fillOpacity: 0.2, // transparent fill
     strokeColor: "#4caf50",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // Airport boundary
@@ -93,7 +93,7 @@ export const aerowayStyles = {
     fillColor: "#ffffff", // transparent/white
     fillOpacity: 0.0,
     strokeColor: "#000000", // black outline
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // Fallback style for unknown features
@@ -102,6 +102,6 @@ export const aerowayStyles = {
     fillColor: "#ff0077", // red for unknown features
     fillOpacity: 0.2,
     strokeColor: "#ff0077",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 } satisfies Record<FeatureName | "unknown", AerowayStyle>;
