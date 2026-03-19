@@ -1,4 +1,4 @@
-import { OSMElement } from "./types";
+import { OSMElement, OSMPoint } from "./types";
 import { LineStyle, PolygonStyle } from "./styles";
 
 export function extractWayPath(
@@ -87,10 +87,6 @@ export function createPolygon(
 }
 
 // Helper functions
-type OSMPoint = {
-  lat: number;
-  lon: number;
-};
 
 function toLatLng(p: OSMPoint): google.maps.LatLngLiteral {
   return { lat: p.lat, lng: p.lon };

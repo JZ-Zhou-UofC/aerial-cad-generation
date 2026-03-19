@@ -1,3 +1,8 @@
+export type OSMPoint = {
+  lat: number;
+  lon: number;
+};
+
 export type OSMElement = {
   id: number;
   type: "node" | "way" | "relation";
