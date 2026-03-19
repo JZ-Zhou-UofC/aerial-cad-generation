@@ -17,28 +17,46 @@ export async function fetchAirportData(bounds: google.maps.LatLngBounds) {
 (
   // Movement surfaces
   way["aeroway"="runway"](${south},${west},${north},${east});
-  way["aeroway"="taxiway"](${south},${west},${north},${east});
-  way["aeroway"="stopway"](${south},${west},${north},${east});
-  way["aeroway"="apron"](${south},${west},${north},${east});
+  relation["aeroway"="runway"](${south},${west},${north},${east});
 
-  // Buildings / infrastructure
-  way["aeroway"="terminal"](${south},${west},${north},${east});
-  way["aeroway"="hangar"](${south},${west},${north},${east});
-  way["building"="terminal"](${south},${west},${north},${east});
-  way["building"="hangar"](${south},${west},${north},${east});
+  way["aeroway"="taxiway"](${south},${west},${north},${east});
+  relation["aeroway"="taxiway"](${south},${west},${north},${east});
+
+  way["aeroway"="stopway"](${south},${west},${north},${east});
+  relation["aeroway"="stopway"](${south},${west},${north},${east});
+
+  way["aeroway"="apron"](${south},${west},${north},${east});
+  relation["aeroway"="apron"](${south},${west},${north},${east});
+
+  // Buildings / infrastructure (all)
+  way["building"](${south},${west},${north},${east});
+  relation["building"](${south},${west},${north},${east});
 
   // Operations (parking)
   way["aeroway"="parking_position"](${south},${west},${north},${east});
+  relation["aeroway"="parking_position"](${south},${west},${north},${east});
 
   // Ground cover (grass)
   way["landcover"="grass"](${south},${west},${north},${east});
+  relation["landcover"="grass"](${south},${west},${north},${east});
+
   way["landuse"="grass"](${south},${west},${north},${east});
+  relation["landuse"="grass"](${south},${west},${north},${east});
+
   way["natural"="grassland"](${south},${west},${north},${east});
+  relation["natural"="grassland"](${south},${west},${north},${east});
+
   way["aeroway"]["surface"="grass"](${south},${west},${north},${east});
+  relation["aeroway"]["surface"="grass"](${south},${west},${north},${east});
 
   // Airport boundary
   way["aerodrome"](${south},${west},${north},${east});
+  relation["aerodrome"](${south},${west},${north},${east});
 );
+
+// for all current result sets, fetch all child nodes/ways insided them
+(._; >;);
+
 out geom;
 `;
 

@@ -7,14 +7,14 @@ export const aerowayStyles = {
   runway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Runway Taxipath)
-    strokeWeight: 2*baseThickness,
+    strokeWeight: 2 * baseThickness,
     strokeOpacity: 1,
   },
 
   taxiway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Taxipath)
-    strokeWeight: 2*baseThickness,
+    strokeWeight: 2 * baseThickness,
     strokeOpacity: 1,
   },
 
@@ -34,22 +34,15 @@ export const aerowayStyles = {
   },
 
   // buildings
-  terminal: {
+  building: {
     render: "polygon",
-    fillColor: "#000000", // Black terminal, example output doesn't have buildings
+    fillColor: "#0000FF", // blue buildings, example output doesn't have buildings
     fillOpacity: 0.1,
-    strokeColor: "#000000",
+    strokeColor: "#0000FF",
     strokeWeight: baseThickness,
   },
 
-  hangar: {
-    render: "polygon",
-    fillColor: "#E6E6E6", // Light gray for hangars
-    fillOpacity: 0.3,
-    strokeColor: "#E6E6E6",
-    strokeWeight: baseThickness,
-  },
-
+  // operations (parking)
   parking_position: {
     render: "line",
     strokeColor: "#ffffff",
@@ -72,6 +65,15 @@ export const aerowayStyles = {
     fillColor: "#ffffff", // transparent/white
     fillOpacity: 0.0,
     strokeColor: "#000000", // black outline
+    strokeWeight: baseThickness,
+  },
+
+  // Fallback style for unknown features
+  unknown: {
+    render: "polygon",
+    fillColor: "#ff0077", // red for unknown features
+    fillOpacity: 0.2,
+    strokeColor: "#ff0077",
     strokeWeight: baseThickness,
   },
 };

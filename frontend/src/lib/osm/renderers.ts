@@ -1,58 +1,61 @@
-import { buildBufferedPolygon } from "./geometry";
+import {
+  extractWayPath,
+  extractRelationPaths,
+  createPolyline,
+  createPolygon,
+} from "./geometry";
 
-export function renderRunway(
+// RENDER FUNCTIONS
+export function renderWay(
   map: google.maps.Map,
   element: any,
-  style: any
-) {
-  const width = parseFloat(element.tags.width);
-
-  const path = buildBufferedPolygon(
-    element.geometry,
-    width
-  );
-
-  return new google.maps.Polygon({
-    paths:path,
-    fillColor: style.fillColor,
-    fillOpacity: style.fillOpacity,
-    strokeColor: style.strokeColor,
-    strokeWeight: style.strokeWeight,
-    strokeOpacity: style.strokeOpacity,
-    map,
-  });
-}
-
-export function renderDefault(
-  map: google.maps.Map,
-  element: any,
-  style: any
-) {
-  const path = element.geometry.map((p: any) => ({
-    lat: p.lat,
-    lng: p.lon,
-  }));
+  style: any,
+): (google.maps.Polygon | google.maps.Polyline)[] {
+  const path = extractWayPath(element);
+  if (!path) return [];
 
   if (style.render === "line") {
-    return new google.maps.Polyline({
-      path,
-      strokeColor: style.strokeColor,
-      strokeOpacity: style.strokeOpacity,
-      strokeWeight: style.strokeWeight,
-      map,
-    });
+    return [createPolyline(map, path, style)];
   }
 
   if (style.render === "polygon") {
-    return new google.maps.Polygon({
-      paths:path,
-      fillColor: style.fillColor,
-      fillOpacity: style.fillOpacity,
-      strokeColor: style.strokeColor,
-      strokeWeight: style.strokeWeight,
-      map,
+    return [createPolygon(map, path, style)];
+  }
+
+  return [];
+}
+
+export function renderRelation(
+  map: google.maps.Map,
+  element: any,
+  style: any,
+): (google.maps.Polygon | google.maps.Polyline)[] {
+  const paths = extractRelationPaths(element);
+  if (!paths || !paths.polygons?.length) return [];
+
+  const overlays: (google.maps.Polygon | google.maps.Polyline)[] = [];
+
+  if (style.render === "line") {
+    // draw each outer ring as a polyline
+    paths.polygons.forEach((poly) => {
+      if (!poly.outer || poly.outer.length === 0) {
+        console.warn("Relation has no outer ring:", element.id);
+        return;
+      }
+      overlays.push(createPolyline(map, poly.outer, style));
+    });
+  } else if (style.render === "polygon") {
+    // draw each outer with its holes
+    paths.polygons.forEach((poly) => {
+      if (!poly.outer || poly.outer.length === 0) {
+        console.warn("Relation has no outer ring:", element.id);
+        return;
+      }
+      overlays.push(
+        createPolygon(map, [poly.outer, ...(poly.inners || [])], style),
+      );
     });
   }
 
-  return null;
+  return overlays;
 }
