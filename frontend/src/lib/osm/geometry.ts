@@ -1,11 +1,13 @@
+import { OSMElement } from "./airportLayer";
+
 export function extractWayPath(
-  element: any,
+  element: OSMElement,
 ): google.maps.LatLngLiteral[] | null {
   if (!element.geometry) return null;
   return element.geometry.map(toLatLng);
 }
 
-export function extractRelationPaths(element: any): {
+export function extractRelationPaths(element: OSMElement): {
   polygons: {
     outer: google.maps.LatLngLiteral[];
     inners: google.maps.LatLngLiteral[][];
@@ -44,7 +46,7 @@ export function extractRelationPaths(element: any): {
       }
     }
 
-    // 🔍 Debug: inner didn't match any outer
+    // Debug: inner didn't match any outer
     console.warn("Unmatched inner ring:", {
       relationId: element.id,
       innerPoints: inner.length,

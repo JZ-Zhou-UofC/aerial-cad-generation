@@ -8,6 +8,7 @@ export type FeatureName =
   | "stopway"
   | "apron"
   | "building"
+  | "building"
   | "parking_position"
   | "aerodrome"
   | "grass";
@@ -26,7 +27,7 @@ export type OSMElement = {
   geometry?: { lat: number; lon: number }[];
 
   members?: {
-    geometry?: { lat: number; lon: number }[];
+    geometry?: { lat: number; lon: number }[]; // for ways that are members of relations, we include their geometry directly for easier rendering
     ref: number;
     role?: string;
     type: string;
@@ -41,11 +42,11 @@ export type OSMElement = {
 export default class AirportLayer {
   // toggle rendering of unknown features (for debugging)
   RENDER_UNKNOWN = true;
-
   map: google.maps.Map;
 
   bounds: google.maps.LatLngBounds | null = null;
 
+  // Each feature has its own layer of overlays for easy toggling
   layers: Record<
     string,
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
@@ -58,6 +59,7 @@ export default class AirportLayer {
     "taxiway",
     "stopway",
     "apron",
+    "building",
     "building",
     "parking_position",
     "aerodrome",
@@ -171,6 +173,7 @@ export default class AirportLayer {
     if (!isRelation && (el._meta?.parents?.length ?? 0) > 0) return;
     // if it's not a relation and has no geometry, skip
     if (!isRelation && !el.geometry) return;
+    if (!el) return;
 
     // detect feature type
     let feature: string | undefined;
@@ -201,6 +204,18 @@ export default class AirportLayer {
     }
 
     // get style for feature
+    // fallback for unknown features
+    if (!feature || !aerowayStyles[feature as keyof typeof aerowayStyles]) {
+      console.warn("Unknown feature type:", {
+        id: el.id,
+        type: el.type,
+        tags: el.tags,
+      });
+      if (!this.RENDER_UNKNOWN) return;
+      feature = "unknown";
+    }
+
+    // get style for feature
     const style = aerowayStyles[feature as keyof typeof aerowayStyles];
     if (!style) return;
 
@@ -219,20 +234,23 @@ export default class AirportLayer {
     overlays.forEach((o) => this.addOverlay(feature, o));
   }
 
+  // Feature layer toggling functions
   setVisible(feature: string, visible: boolean) {
     if (visible) {
       this.visibleFeatures.add(feature as FeatureName);
     } else {
       this.visibleFeatures.delete(feature as FeatureName);
     }
-
     const overlays = this.layers[feature];
     if (!overlays) return;
     overlays.forEach((o) => o.setMap(visible ? this.map : null));
   }
-  // Feature layer toggling functions
+
   toggleFeature(feature: string) {
-    const isVisible = this.visibleFeatures.has(feature as FeatureName);
-    this.setVisible(feature, !isVisible);
+    const overlays = this.layers[feature];
+    if (!overlays?.length) return;
+
+    const visible = overlays[0].getMap() !== null;
+    this.setVisible(feature, !visible);
   }
 }
