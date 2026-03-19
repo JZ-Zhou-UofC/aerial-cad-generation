@@ -15,15 +15,27 @@ const DEFAULT_AIRPORT_BOUNDS = {
   east: -60.34465834075927,
 } as const;
 
+const DEFAULT_AIRPORT_BOUNDS = {
+  south: 53.28409862700042,
+  west: -60.48035665924071,
+  north: 53.34332482894499,
+  east: -60.34465834075927,
+} as const;
+
+export type OSMElement = {
+  id: number;
+  type: string;
+  tags: Record<string, string>;
+  geometry: { lat: number; lon: number }[];
+};
+
 export default class AirportLayer {
   // toggle rendering of unknown features (for debugging)
   RENDER_UNKNOWN = true;
 
   map: google.maps.Map;
-
   bounds: google.maps.LatLngBounds | null = null;
 
-  // Each feature has its own layer of overlays for easy toggling
   layers: Record<
     string,
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
@@ -155,10 +167,7 @@ export default class AirportLayer {
   }
 
   toggleFeature(feature: string) {
-    const overlays = this.layers[feature];
-    if (!overlays?.length) return;
-
-    const visible = overlays[0].getMap() !== null;
-    this.setVisible(feature, !visible);
+    const isVisible = this.visibleFeatures.has(feature as FeatureName);
+    this.setVisible(feature, !isVisible);
   }
 }
