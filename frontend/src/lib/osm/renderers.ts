@@ -6,17 +6,10 @@ import {
   createPolygon,
 } from "./geometry";
 
-<<<<<<< HEAD
-// RENDER FUNCTIONS
-export function renderWay(
-  map: google.maps.Map,
-  element: any,
-=======
 // RENDER FUNCTIONS// RENDER FUNCTIONS
 export function renderWay(
   map: google.maps.Map,
   element: OSMElement,
->>>>>>> f331c0b (added fetch/render for relations, added all buildings)
   style: any,
 ): (google.maps.Polygon | google.maps.Polyline)[] {
   const path = extractWayPath(element);
@@ -35,11 +28,7 @@ export function renderWay(
 
 export function renderRelation(
   map: google.maps.Map,
-<<<<<<< HEAD
-  element: any,
-=======
   element: OSMElement,
->>>>>>> f331c0b (added fetch/render for relations, added all buildings)
   style: any,
 ): (google.maps.Polygon | google.maps.Polyline)[] {
   const paths = extractRelationPaths(element);
