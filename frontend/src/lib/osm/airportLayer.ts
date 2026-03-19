@@ -1,12 +1,7 @@
 import { fetchAirportData } from "../api/overpass";
 import { FeatureName, OSMElement } from "./types";
-import { aerowayStyles } from "./styles";
-import { renderWay, renderRelation } from "./renderers";
-import {
-  attachRelationLinks,
-  buildElementMap,
-  detectElementFeature,
-} from "./prepareElements";
+import { renderElements } from "./renderers";
+import { attachRelationLinks, buildElementMap } from "./prepareElements";
 
 const DEFAULT_AIRPORT_BOUNDS = {
   south: 53.28409862700042,
@@ -16,9 +11,6 @@ const DEFAULT_AIRPORT_BOUNDS = {
 } as const;
 
 export default class AirportLayer {
-  // toggle rendering of unknown features (for debugging)
-  RENDER_UNKNOWN = true;
-
   map: google.maps.Map;
   bounds: google.maps.LatLngBounds | null = null;
 
@@ -92,57 +84,11 @@ export default class AirportLayer {
     // save elements
     this.elements = data.elements;
 
-    this.renderElements(data.elements);
-  }
-
-  renderElements(elements: OSMElement[]) {
-    // avoid duplicate elements
-    const seen = new Set<number>();
-
-    for (const el of elements) {
-      if (seen.has(el.id)) continue;
-      seen.add(el.id);
-
-      this.renderElement(el);
-    }
-  }
-
-  renderElement(el: OSMElement) {
-    if (!el) return;
-
-    const isRelation = el.type === "relation";
-
-    if (!isRelation && (el._meta?.parents?.length ?? 0) > 0) return;
-    if (!isRelation && !el.geometry) return;
-
-    const featureRaw = detectElementFeature(el, aerowayStyles);
-
-    let feature: keyof typeof aerowayStyles;
-
-    if (!featureRaw) {
-      // debug: log unknown features to console
-      console.warn("Unknown feature type:", {
-        id: el.id,
-        type: el.type,
-        tags: el.tags,
-      });
-
-      if (!this.RENDER_UNKNOWN) return;
-      feature = "unknown";
-    } else {
-      feature = featureRaw;
-    }
-
-    const style = aerowayStyles[feature];
-    if (!style) return;
-
-    const overlays = isRelation
-      ? renderRelation(this.map, el, style)
-      : renderWay(this.map, el, style);
-
-    if (!overlays.length) return;
-
-    overlays.forEach((o) => this.addOverlay(feature, o));
+    // this.renderElements(data.elements);
+    renderElements(this.elements, {
+      map: this.map,
+      addOverlay: this.addOverlay.bind(this),
+    });
   }
 
   // Feature layer toggling functions
