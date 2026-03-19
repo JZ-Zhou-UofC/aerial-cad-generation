@@ -1,6 +1,7 @@
 "use client";
 
-import AirportLayer, { FeatureName } from "@/lib/osm/airportLayer";
+import AirportLayer from "@/lib/osm/airportLayer";
+import { FeatureName } from "@/lib/osm/types";
 import { useState } from "react";
 
 type Props = {
@@ -12,8 +13,7 @@ const initialLayersVisibilityState: Record<FeatureName, boolean> = {
   taxiway: true,
   stopway: true,
   apron: true,
-  terminal: true,
-  hangar: true,
+  building: true,
   parking_position: true,
   aerodrome: true,
   grass: true,
@@ -22,7 +22,7 @@ const initialLayersVisibilityState: Record<FeatureName, boolean> = {
 // purely for UI layout
 const featureGroups: { title: string; features: FeatureName[] }[] = [
   { title: "Roads/Areas", features: ["runway", "taxiway", "stopway", "apron"] },
-  { title: "Buildings", features: ["terminal", "hangar"] },
+  { title: "Buildings", features: ["building"] },
   { title: "Operations", features: ["parking_position"] },
   { title: "Groundcover", features: ["grass"] },
   { title: "Boundary", features: ["aerodrome"] },
