@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import map
+from app.routers import export
 import logging
 
 
@@ -16,13 +16,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user.router)
-app.include_router(test.router)
-app.include_router(document.router)
-app.include_router(chat.router)
-app.include_router(deliverable.router)
-app.include_router(course.router)
-app.include_router(quiz.router)
+
+app.include_router(export.router)
 
 logger = logging.getLogger("uvicorn")
 

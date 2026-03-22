@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
-import { exportCAD } from "@/lib/api/backend";
 
 
 type Props = {
@@ -48,12 +47,23 @@ export default function MapControls({ map, airportLayer }: Props) {
         : null,
       elements: airportLayer.elements,
       visibleFeatures: Array.from(airportLayer.visibleFeatures),
-      airportName: search
+      airportName: search,
+      icao: airportLayer.icao
     };
 
     try {
-      const result = await exportCAD(data);
-      console.log("Export success:", result);
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        throw new Error("Export failed");
+      }
+      console.log("Export success:", res);
     } catch (err) {
       console.error("Export error:", err);
     }

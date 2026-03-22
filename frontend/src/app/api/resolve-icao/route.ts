@@ -30,6 +30,7 @@ export async function POST(req: Request) {
 
     console.log("OpenAI HTTP status:", res.status);
 
+
     if (!res.ok) {
       const err = await res.text();
 
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     const data = await res.json();
-
+    console.log("Response body:", data);
 
     const text =
       data.output?.[0]?.content?.find((c: any) => c.type === "output_text")?.text

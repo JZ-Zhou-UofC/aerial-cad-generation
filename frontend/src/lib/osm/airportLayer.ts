@@ -66,9 +66,7 @@ export default class AirportLayer {
 
     const { icao } = await openAIRes.json();
 
-    if (!icao) {
-      return null;
-    }
+
     console.log("calling getAerodromeBBox...");
     console.log(icao);
     this.icao=icao;
