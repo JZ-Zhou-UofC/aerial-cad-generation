@@ -29,10 +29,6 @@ export default function MapControls({ map, airportLayer }: Props) {
       }
     });
     airportLayer.clear();
-    const bounds = map.getBounds();
-    if (bounds) {
-      airportLayer.setBounds(bounds);
-    }
 
   };
 

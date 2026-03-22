@@ -3,17 +3,11 @@ import { FeatureName, OSMElement } from "./types";
 import { renderElements } from "./renderers";
 import { attachRelationLinks, buildElementMap } from "./prepareElements";
 
-const DEFAULT_AIRPORT_BOUNDS = {
-  south: 53.28409862700042,
-  west: -60.48035665924071,
-  north: 53.34332482894499,
-  east: -60.34465834075927,
-} as const;
 
 export default class AirportLayer {
   map: google.maps.Map;
   bounds: google.maps.LatLngBounds | null = null;
-
+  icao: string = "";
   layers: Record<
     string,
     (google.maps.Polygon | google.maps.Polyline | google.maps.Marker)[]
@@ -34,10 +28,7 @@ export default class AirportLayer {
 
   constructor(map: google.maps.Map) {
     this.map = map;
-    this.bounds = new google.maps.LatLngBounds(
-      { lat: DEFAULT_AIRPORT_BOUNDS.south, lng: DEFAULT_AIRPORT_BOUNDS.west },
-      { lat: DEFAULT_AIRPORT_BOUNDS.north, lng: DEFAULT_AIRPORT_BOUNDS.east },
-    );
+
   }
 
   clear() {
@@ -50,10 +41,6 @@ export default class AirportLayer {
     this.bounds = null;
   }
 
-  setBounds(bounds: google.maps.LatLngBounds) {
-    console.log(bounds);
-    this.bounds = bounds;
-  }
 
   addOverlay(
     feature: string,
@@ -68,11 +55,27 @@ export default class AirportLayer {
     overlay.setMap(isVisible ? this.map : null);
   }
 
-  async load(airportCode:string) {
+  async load(search: string) {
+    const openAIRes = await fetch("/api/resolve-icao", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ input: search }),
+    });
 
-    const bounds= await getAerodromeBBox(airportCode)
+    const { icao } = await openAIRes.json();
+
+    if (!icao) {
+      return null;
+    }
+    console.log("calling getAerodromeBBox...");
+    console.log(icao);
+    this.icao=icao;
+
+    const bounds = await getAerodromeBBox(icao)
     if (!bounds) return;
-
+    // save bounds in this class
     this.bounds = bounds;
 
     const data = await fetchAirportData(bounds);

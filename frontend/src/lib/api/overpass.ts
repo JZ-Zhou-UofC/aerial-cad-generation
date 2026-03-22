@@ -78,22 +78,8 @@ out geom;
 }
 
 
-export async function getAerodromeBBox(search: string): Promise<google.maps.LatLngBounds | null> {
-const openAIRes = await fetch("/api/resolve-icao", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ input: search }),
-});
+export async function getAerodromeBBox(icao: string): Promise<google.maps.LatLngBounds | null> {
 
-const { icao } = await openAIRes.json();
-
-  if (!icao) {
-    return null;
-  }
-  console.log("calling getAerodromeBBox...");
-  console.log(icao);
   const query = `
     [out:json][timeout:25];
     (
@@ -113,13 +99,11 @@ const { icao } = await openAIRes.json();
     body: new URLSearchParams({ data: query }),
   });
   const payload = await res.json();
-  console.log("pppppppp")
-  console.log(payload)
   const bounds = extractBoundsFromOverpass(payload);
   return bounds
 }
 
-export function extractBoundsFromOverpass(
+function extractBoundsFromOverpass(
   payload: any
 ): google.maps.LatLngBounds {
   const elements = payload?.elements || [];
