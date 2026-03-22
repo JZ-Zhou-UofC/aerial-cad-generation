@@ -1,5 +1,6 @@
 import ezdxf
-from core.geometry import latlon_to_meters, douglas_peucker
+import os
+from app.core.geometry import latlon_to_pixel_xy, douglas_peucker
 
 # Default colours to match transoft output
 
@@ -31,13 +32,13 @@ LAYER_CONFIG = {
 #     "Unclassified": {"color": 9, "lineweight": 25},      # Light Gray
 # }
 
-def export_to_cad(geo_data, output_path, ref_lat_lon):
+def export_to_cad(geo_data, output_path, origin, zoom, active_layers=None):
     doc = ezdxf.new(setup=True)
     msp = doc.modelspace()
-    doc.header['$INSUNITS'] = 6  # Units = Meters
+    doc.header['$INSUNITS'] = 0 # Web Mode uses Pixel units
 
-    ref_lat, ref_lon = ref_lat_lon
     features = geo_data.get('elements', []) if isinstance(geo_data, dict) else geo_data
+    processed_count = 0
 
     for feature in features:
         tags = feature.get('tags', {})
@@ -45,30 +46,45 @@ def export_to_cad(geo_data, output_path, ref_lat_lon):
         # 1. Identify Layer
         raw_val = tags.get('aeroway') or tags.get('building') or "Unclassified"
         layer_name = str(raw_val).strip().title()
-
-        # 2. Get Styling (Default to Unclassified color if not in our dict)
-        config = LAYER_CONFIG.get(layer_name, LAYER_CONFIG["Unclassified"])
         
+        # 2. Styling
+        config = LAYER_CONFIG.get(layer_name, LAYER_CONFIG["Unclassified"])
         if layer_name not in doc.layers:
             doc.layers.add(name=layer_name, color=config['color'], lineweight=config.get('lineweight'))
 
         geometry = feature.get('geometry', [])
-        if not geometry: 
-            continue
+        if not geometry: continue
 
-        # 3. Transform to Meters
-        metric_points = []
+        # 3. Coordinate Conversion (Pixel Space)
+        pixel_points = []
         for pt in geometry:
-            mx, my = latlon_to_meters(pt['lat'], pt['lon'], ref_lat, ref_lon)
-            metric_points.append((mx, my))
+            px, py = latlon_to_pixel_xy(pt['lat'], pt['lon'], zoom)
+            pixel_points.append((px - origin[0], -(py - origin[1])))
 
-        # 4. Simplify Geometry
-        if len(metric_points) > 2:
-            metric_points = douglas_peucker(metric_points, epsilon=0.1)
+        # 4. Simplification (0.5 pixel tolerance)
+        if len(pixel_points) > 2:
+            pixel_points = douglas_peucker(pixel_points, epsilon=0.5)
 
-        # 5. Add to Modelspace
-        if len(metric_points) > 1:
-            msp.add_lwpolyline(metric_points, dxfattribs={'layer': layer_name})
+        # 5. Drawing Logic
+        if len(pixel_points) > 1:
+            polyline = msp.add_lwpolyline(pixel_points, dxfattribs={'layer': layer_name})
             
-    doc.saveas(output_path)
-    print(f"📊 Research Export Successful: {output_path} (Weightless Mode)")
+            # --- THE "APRON" FIX ---
+            # Only auto-close if it's a structural element (Building/Terminal/Hangar)
+            # AND the data actually starts and ends at the same point.
+            is_structural = any(k in layer_name for k in ["Building", "Terminal", "Hangar"])
+            points_match = (pixel_points[0] == pixel_points[-1])
+            
+            if is_structural and points_match:
+                polyline.closed = True
+            else:
+                # Aprons and Taxiways remain open paths to prevent "slicing"
+                polyline.closed = False
+            
+            processed_count += 1
+            
+    try:
+        doc.saveas(output_path)
+        print(f"🌐 Web CAD Export (Safe-Closure): {processed_count} features")
+    except Exception as e:
+        print(f"❌ Save Failed: {e}")

@@ -4,25 +4,6 @@ from typing import Tuple, List
 
 TILE_SIZE = 256
 
-def latlon_to_meters(lat: float, lon: float, ref_lat: float, ref_lon: float) -> Tuple[float, float]:
-    """
-    Converts Lat/Lon coordinates to metric offsets (X, Y) from a reference point.
-    X = Easting (Meters), Y = Northing (Meters)
-    """
-    # Earth's radius in meters
-    R = 6378137.0 
-    
-    # Convert differences to radians
-    d_lat = math.radians(lat - ref_lat)
-    d_lon = math.radians(lon - ref_lon)
-    
-    # Standard Equirectangular projection for local engineering scales
-    # Y is North/South, X is East/West
-    y = d_lat * R
-    x = d_lon * R * math.cos(math.radians(ref_lat))
-    
-    return x, y
-
 def latlon_to_pixel_xy(lat: float, lon: float, zoom: int) -> Tuple[float, float]:
     lat = max(min(lat, 85.05112878), -85.05112878)
     sin_lat = math.sin(math.radians(lat))
@@ -31,8 +12,16 @@ def latlon_to_pixel_xy(lat: float, lon: float, zoom: int) -> Tuple[float, float]
     y = (0.5 - math.log((1 + sin_lat) / (1 - sin_lat)) / (4 * math.pi)) * n * TILE_SIZE
     return x, y
 
+def latlon_to_meters(lat: float, lon: float, ref_lat: float, ref_lon: float) -> Tuple[float, float]:
+    """Metric projection for real-world scaling."""
+    R = 6378137.0 
+    d_lat = math.radians(lat - ref_lat)
+    d_lon = math.radians(lon - ref_lon)
+    y = d_lat * R
+    x = d_lon * R * math.cos(math.radians(ref_lat))
+    return x, y
+
 def latlon_to_tile_xy(lat: float, lon: float, zoom: int) -> Tuple[int, int]:
-    """Converts lat/lon to integer tile coordinates for web mapping services."""
     lat = max(min(lat, 85.05112878), -85.05112878)
     n = 2.0 ** zoom
     x = int((lon + 180.0) / 360.0 * n)
@@ -44,7 +33,6 @@ def douglas_peucker(points: List[Tuple[float, float]], epsilon: float) -> List[T
     if len(points) < 3:
         return points
     p1, p2 = np.array(points[0]), np.array(points[-1])
-    # Distances from points to the line segment p1-p2
     dists = [np.abs(np.cross(p2-p1, p1-np.array(p))) / np.linalg.norm(p2-p1) 
              if not np.array_equal(p1, p2) else np.linalg.norm(np.array(p)-p1) 
              for p in points]

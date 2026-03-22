@@ -15,8 +15,33 @@ export async function POST(req: Request) {
 
     const payload = {
       model: "gpt-4o-mini",
-      input: `Return ONLY the ICAO code (4 letters) for: ${input}. If unknown return null.`,
-      max_output_tokens: 100,
+      input: `
+You are an aviation assistant.
+
+Convert the given airport name, IATA code, or ICAO code into a valid ICAO code.
+
+Rules:
+- Return ONLY the ICAO code (4 uppercase letters)
+- Do NOT include any explanation
+- If unknown, return null
+
+Examples:
+Input: YVR
+Output: CYVR
+
+Input: Vancouver International Airport
+Output: CYVR
+
+Input: YYZ
+Output: CYYZ
+
+Input: Unknown Airport
+Output: null
+
+Now convert:
+${input}
+`,
+      max_output_tokens: 20,
     };
 
     const res = await fetch("https://api.openai.com/v1/responses", {
@@ -38,12 +63,14 @@ export async function POST(req: Request) {
     }
 
     const data = await res.json();
-    console.log("Response body:", data);
 
     const text =
       data.output?.[0]?.content?.find((c: any) => c.type === "output_text")?.text
       ?? data.output_text
       ?? null;
+
+    console.log("Extracted text:", text);
+    // console.log("Raw response:", JSON.stringify(data, null, 2));
 
 
 
