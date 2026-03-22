@@ -51,7 +51,7 @@ async def export_cad(data: ExportRequest):
         dxf_path,
         origin=(origin_x, origin_y),
         zoom=zoom,
-        active_layers=visible,  # now controlled by frontend
+        active_layers=visible,
     )
     # Return everything back to frontend
     return JSONResponse(content=data.model_dump())
