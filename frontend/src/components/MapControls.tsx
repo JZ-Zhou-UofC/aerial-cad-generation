@@ -15,7 +15,7 @@ export default function MapControls({ map, airportLayer }: Props) {
 
 
 
-  const [search, setSearch] = useState("yvr");
+  const [search, setSearch] = useState("YVR");
 
   const doSearch = () => {
     if (!search) return;
@@ -37,7 +37,7 @@ export default function MapControls({ map, airportLayer }: Props) {
   };
 
   const fetchAirport = async () => {
-    await airportLayer.load();
+    await airportLayer.load(search);
   };
 
   const Export = async () => {
@@ -52,7 +52,7 @@ export default function MapControls({ map, airportLayer }: Props) {
         : null,
       elements: airportLayer.elements,
       visibleFeatures: Array.from(airportLayer.visibleFeatures),
-      airportName:search
+      airportName: search
     };
 
     try {
@@ -87,7 +87,7 @@ export default function MapControls({ map, airportLayer }: Props) {
       <button onClick={fetchAirport}>Fetch Airport Data</button>
 
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
-     
+
       <button>placeholder_for_boundary</button>
       <button onClick={() => Export()}>Export</button>
     </div>

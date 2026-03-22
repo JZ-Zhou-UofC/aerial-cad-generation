@@ -1,4 +1,4 @@
-import { fetchAirportData } from "../api/overpass";
+import { fetchAirportData, getAerodromeBBox } from "../api/overpass";
 import { FeatureName, OSMElement } from "./types";
 import { renderElements } from "./renderers";
 import { attachRelationLinks, buildElementMap } from "./prepareElements";
@@ -68,21 +68,23 @@ export default class AirportLayer {
     overlay.setMap(isVisible ? this.map : null);
   }
 
-  async load() {
-    const bounds = this.map.getBounds();
+  async load(airportCode:string) {
+
+    const bounds= await getAerodromeBBox(airportCode)
     if (!bounds) return;
 
     this.bounds = bounds;
 
     const data = await fetchAirportData(bounds);
     if (!data?.elements?.length) return;
+    // save elements
+    this.elements = data.elements;
 
     // augmenting child elements with _meta (added parent relation ids and member role)
     const elementMap = buildElementMap(data.elements);
     attachRelationLinks(data.elements, elementMap);
 
-    // save elements
-    this.elements = data.elements;
+
 
     // this.renderElements(data.elements);
     renderElements(this.elements, {
