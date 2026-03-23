@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from app.core.geometry import latlon_to_pixel_xy
 from app.services.cad_service import export_to_cad
+from app.utils.file_naming import get_next_dxf_filename
 import io
 import os
 
@@ -27,24 +28,22 @@ async def export_cad(data: ExportRequest):
     print("bounds:", data.bounds)
     print("visibleFeatures:", data.visibleFeatures)
     print("elements count:", len(data.elements))
-    airport_name = data.airportName
-    icao = data.icao or "airport"
+    icao = data.icao
     bounds = data.bounds
     elements = data.elements
     visible = data.visibleFeatures
     geo_data = elements
 
-    min_lat = bounds["south"]
+ 
     max_lat = bounds["north"]
     min_lon = bounds["west"]
-    max_lon = bounds["east"]
+ 
     zoom = 16
     origin_x, origin_y = latlon_to_pixel_xy(max_lat, min_lon, zoom)
 
-    save_dir = "./outputs"
-    os.makedirs(save_dir, exist_ok=True)
-
-    dxf_path = os.path.join(save_dir, f"{icao}_layout.dxf")
+    base_dir = "../outputs"
+    
+    dxf_path =get_next_dxf_filename(base_dir,icao)
 
     export_to_cad(
         geo_data,
