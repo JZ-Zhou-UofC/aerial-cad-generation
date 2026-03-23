@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
-from app.core.geometry import latlon_to_pixel_xy
+from backend.app.utils.geometry import latlon_to_pixel_xy
 from app.services.cad_service import export_to_cad
 from app.utils.file_naming import get_next_dxf_filename
 import io

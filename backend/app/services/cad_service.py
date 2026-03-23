@@ -1,6 +1,6 @@
 import ezdxf
 import os
-from app.core.geometry import latlon_to_pixel_xy, douglas_peucker
+from backend.app.utils.geometry import latlon_to_pixel_xy, douglas_peucker
 
 # Default colours to match transoft output
 
