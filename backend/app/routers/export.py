@@ -34,21 +34,20 @@ async def export_cad(data: ExportRequest):
     visible = data.visibleFeatures
     geo_data = elements
 
- 
     max_lat = bounds["north"]
     min_lon = bounds["west"]
- 
+
     zoom = 16
-    origin_x, origin_y = latlon_to_pixel_xy(max_lat, min_lon, zoom)
 
     base_dir = "../outputs"
-    
-    dxf_path =get_next_dxf_filename(base_dir,icao)
+
+    dxf_path = get_next_dxf_filename(base_dir, icao)
 
     export_to_cad(
         geo_data,
         dxf_path,
-        origin=(origin_x, origin_y),
+        max_lat,
+        min_lon,
         zoom=zoom,
         active_layers=visible,
     )
