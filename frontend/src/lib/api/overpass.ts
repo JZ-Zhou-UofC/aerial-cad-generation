@@ -1,4 +1,4 @@
-import { resolveToICAOWithOpenAI } from "./openAI";
+
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
