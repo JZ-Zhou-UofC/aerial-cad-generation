@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from typing import Tuple, List
+# app/cad/geometry.py
 
 TILE_SIZE = 256
 
@@ -43,3 +44,28 @@ def douglas_peucker(points: List[Tuple[float, float]], epsilon: float) -> List[T
         right = douglas_peucker(points[index:], epsilon)
         return left[:-1] + right
     return [points[0], points[-1]]
+
+
+
+
+def convert_to_pixels(coords, origin_x, origin_y, zoom):
+    """
+    Converts [(lat, lon)] → [(x, y)] in pixel space
+    Uses existing latlon_to_pixel_xy
+    """
+    pixel_points = []
+
+    for lat, lon in coords:
+        px, py = latlon_to_pixel_xy(lat, lon, zoom)
+        pixel_points.append((px - origin_x, -(py - origin_y)))
+
+    return pixel_points
+
+
+def simplify(points):
+    """
+    Wrapper around your Douglas-Peucker
+    """
+    if len(points) > 2:
+        return douglas_peucker(points, epsilon=0.5)
+    return points

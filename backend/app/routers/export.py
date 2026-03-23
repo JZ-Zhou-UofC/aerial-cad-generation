@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import json
 from typing import List, Optional
-from backend.app.utils.geometry import latlon_to_pixel_xy
 from app.services.cad_service import export_to_cad
 from app.utils.file_naming import get_next_dxf_filename
 import io
@@ -42,6 +42,13 @@ async def export_cad(data: ExportRequest):
     base_dir = "../outputs"
 
     dxf_path = get_next_dxf_filename(base_dir, icao)
+
+    json_path = os.path.join(base_dir, f"{icao}_elements.json")
+
+    with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(elements, f, indent=2, ensure_ascii=False)
+
+    print(f"Saved elements to: {json_path}")
 
     export_to_cad(
         geo_data,
