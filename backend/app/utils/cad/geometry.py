@@ -62,10 +62,8 @@ def convert_to_pixels(coords, origin_x, origin_y, zoom):
     return pixel_points
 
 
-def simplify(points):
-    """
-    Wrapper around your Douglas-Peucker
-    """
+def simplify_path(points):
+
     if len(points) > 2:
         return douglas_peucker(points, epsilon=0.5)
     return points

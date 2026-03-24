@@ -1,4 +1,4 @@
-from app.utils.cad.geometry import convert_to_pixels, simplify
+from app.utils.cad.geometry import convert_to_pixels, simplify_path
 from app.utils.cad.relations import extract_relation_polygons
 from app.utils.cad.layers import RENDER_TYPE
 
@@ -25,7 +25,7 @@ def render_way(feature, msp, layer_name, config, origin_x, origin_y, zoom):
 
     coords = [(pt["lat"], pt["lon"]) for pt in geometry]
     pts = convert_to_pixels(coords, origin_x, origin_y, zoom)
-    pts = simplify(pts)
+    pts = simplify_path(pts)
 
     if len(pts) < 2:
         return 0
@@ -48,7 +48,7 @@ def render_relation(feature, msp, layer_name, config, origin_x, origin_y, zoom, 
 
     for outer in outers:
         pts = convert_to_pixels(outer, origin_x, origin_y, zoom)
-        pts = simplify(pts)
+        pts = simplify_path(pts)
 
         if len(pts) < 2:
             continue
