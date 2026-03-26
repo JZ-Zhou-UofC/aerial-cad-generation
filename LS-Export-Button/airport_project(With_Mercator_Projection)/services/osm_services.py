@@ -13,10 +13,21 @@ def fetch_semantic_geometry(bbox: tuple):
     query = f"""
     [out:json][timeout:180];
     (
-      way["aeroway"~"apron|taxiway|runway|terminal"]({min_lat},{min_lon},{max_lat},{max_lon});
-      relation["aeroway"~"apron|taxiway|runway|terminal"]({min_lat},{min_lon},{max_lat},{max_lon});
-      way["building"]({min_lat},{min_lon},{max_lat},{max_lon});
-      relation["building"]({min_lat},{min_lon},{max_lat},{max_lon});
+    /* Aeroway core */
+    way["aeroway"~"runway|taxiway|stopway|apron|terminal|parking_position"]({min_lat},{min_lon},{max_lat},{max_lon});
+    relation["aeroway"~"runway|taxiway|stopway|apron|terminal|parking_position"]({min_lat},{min_lon},{max_lat},{max_lon});
+
+    /* Aerodrome boundary */
+    way["aeroway"="aerodrome"]({min_lat},{min_lon},{max_lat},{max_lon});
+    relation["aeroway"="aerodrome"]({min_lat},{min_lon},{max_lat},{max_lon});
+
+    /* Buildings (filtered) */
+    way["building"~"terminal|hangar"]({min_lat},{min_lon},{max_lat},{max_lon});
+    relation["building"~"terminal|hangar"]({min_lat},{min_lon},{max_lat},{max_lon});
+
+    /* Grass / land cover */
+    way["landuse"="grass"]({min_lat},{min_lon},{max_lat},{max_lon});
+    way["natural"="grassland"]({min_lat},{min_lon},{max_lat},{max_lon});
     );
     (._; >;);
     out geom;

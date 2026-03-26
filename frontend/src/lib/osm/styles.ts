@@ -1,27 +1,55 @@
-// Airport Data Visualization Configuration
+import { FeatureName } from "./types";
 
-const baseThickness = 2;
+// Airport Data Visualization Configuration
+export type LineStyle = {
+  render: "line";
+  strokeColor: string;
+  strokeWeight: number;
+  strokeOpacity: number;
+};
+
+export type PolygonStyle = {
+  render: "polygon";
+  fillColor: string;
+  fillOpacity: number;
+  strokeColor: string;
+  strokeWeight: number;
+};
+
+export type AerowayStyle = LineStyle | PolygonStyle;
+
+const BASE_THICKNESS = 2;
+
+//or
+export const Thickness = {
+  Thin: 1,
+  Base: 2,
+  Thick: 4,
+} as const;
+
+// usage 
+//const thickness: Thickness = Thickness.Base;
 
 export const aerowayStyles = {
   // roads / areas
   runway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Runway Taxipath)
-    strokeWeight: 2*baseThickness,
+    strokeWeight: 2 * BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
   taxiway: {
     render: "line",
     strokeColor: "#FFFF00", // AutoCAD "Yellow" (Taxipath)
-    strokeWeight: 2*baseThickness,
+    strokeWeight: 2 * BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
   stopway: {
     render: "line",
     strokeColor: "#ff7043", // orange-ish
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
@@ -30,30 +58,23 @@ export const aerowayStyles = {
     fillColor: "#FF00FF", // AutoCAD "Magenta" (Apron-Limits)
     fillOpacity: 0.0, // transparent fill
     strokeColor: "#FF00FF",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // buildings
-  terminal: {
+  building: {
     render: "polygon",
-    fillColor: "#000000", // Black terminal, example output doesn't have buildings
+    fillColor: "#0000FF", // blue buildings, example output doesn't have buildings
     fillOpacity: 0.1,
-    strokeColor: "#000000",
-    strokeWeight: baseThickness,
+    strokeColor: "#0000FF",
+    strokeWeight: BASE_THICKNESS,
   },
 
-  hangar: {
-    render: "polygon",
-    fillColor: "#E6E6E6", // Light gray for hangars
-    fillOpacity: 0.3,
-    strokeColor: "#E6E6E6",
-    strokeWeight: baseThickness,
-  },
-
+  // operations (parking)
   parking_position: {
     render: "line",
     strokeColor: "#ffffff",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
     strokeOpacity: 1,
   },
 
@@ -63,7 +84,7 @@ export const aerowayStyles = {
     fillColor: "#81c784", // soft green
     fillOpacity: 0.2, // transparent fill
     strokeColor: "#4caf50",
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
 
   // Airport boundary
@@ -72,6 +93,15 @@ export const aerowayStyles = {
     fillColor: "#ffffff", // transparent/white
     fillOpacity: 0.0,
     strokeColor: "#000000", // black outline
-    strokeWeight: baseThickness,
+    strokeWeight: BASE_THICKNESS,
   },
-};
+
+  // Fallback style for unknown features
+  unknown: {
+    render: "polygon",
+    fillColor: "#ff0077", // red for unknown features
+    fillOpacity: 0.2,
+    strokeColor: "#ff0077",
+    strokeWeight: BASE_THICKNESS,
+  },
+} satisfies Record<FeatureName | "unknown", AerowayStyle>;
