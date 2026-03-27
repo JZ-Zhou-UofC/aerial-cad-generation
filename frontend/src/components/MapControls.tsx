@@ -4,16 +4,23 @@ import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
 
-
 type Props = {
   map: google.maps.Map;
   airportLayer: AirportLayer;
+  setNotification: React.Dispatch<
+    React.SetStateAction<{
+      open: boolean;
+      message: string;
+      severity: "error";
+    }>
+  >;
 };
 
-export default function MapControls({ map, airportLayer }: Props) {
-
-
-
+export default function MapControls({
+  map,
+  airportLayer,
+  setNotification,
+}: Props) {
   const [search, setSearch] = useState("YVR");
 
   const doSearch = () => {
@@ -25,30 +32,46 @@ export default function MapControls({ map, airportLayer }: Props) {
       if (status === "OK" && results?.[0]) {
         map.setCenter(results[0].geometry.location);
         map.setZoom(14);
+      } else {
+        setNotification({
+          open: true,
+          message: "Location not found",
+          severity: "error",
+        });
       }
     });
     airportLayer.clear();
-
   };
 
   const fetchAirport = async () => {
-    await airportLayer.load(search);
+    try {
+      await airportLayer.load(search);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setNotification({
+        open: true,
+        message,
+        severity: "error",
+      });
+    }
   };
 
   const Export = async () => {
     const data = {
       bounds: airportLayer.bounds
         ? {
-          north: airportLayer.bounds.getNorthEast().lat(),
-          east: airportLayer.bounds.getNorthEast().lng(),
-          south: airportLayer.bounds.getSouthWest().lat(),
-          west: airportLayer.bounds.getSouthWest().lng(),
-        }
+            north: airportLayer.bounds.getNorthEast().lat(),
+            east: airportLayer.bounds.getNorthEast().lng(),
+            south: airportLayer.bounds.getSouthWest().lat(),
+            west: airportLayer.bounds.getSouthWest().lng(),
+          }
         : null,
       elements: airportLayer.elements,
       visibleFeatures: Array.from(airportLayer.visibleFeatures),
       airportName: search,
-      icao: airportLayer.icao
+      icao: airportLayer.icao,
     };
 
     try {
@@ -60,12 +83,21 @@ export default function MapControls({ map, airportLayer }: Props) {
         body: JSON.stringify(data),
       });
 
+      const result = await res.json().catch(() => null);
+
       if (!res.ok) {
-        throw new Error("Export failed");
+        throw new Error(result?.error || result?.raw || "Export failed");
       }
-      console.log("Export success:", res);
+
+      console.log("Export success:", result);
     } catch (err) {
-      console.error("Export error:", err);
+      const message = err instanceof Error ? err.message : "Export failed";
+
+      setNotification({
+        open: true,
+        message,
+        severity: "error",
+      });
     }
   };
 

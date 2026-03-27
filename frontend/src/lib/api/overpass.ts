@@ -1,5 +1,3 @@
-
-
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
 // OSM airport data documentation:
@@ -77,9 +75,9 @@ out geom;
   return res.json();
 }
 
-
-export async function getAerodromeBBox(icao: string): Promise<google.maps.LatLngBounds | null> {
-
+export async function getAerodromeBBox(
+  icao: string,
+): Promise<google.maps.LatLngBounds | null> {
   const query = `
     [out:json][timeout:25];
     (
@@ -98,14 +96,17 @@ export async function getAerodromeBBox(icao: string): Promise<google.maps.LatLng
     },
     body: new URLSearchParams({ data: query }),
   });
+
+  if (!res.ok) {
+    throw new Error(`Overpass HTTP ${res.status}`);
+  }
+
   const payload = await res.json();
   const bounds = extractBoundsFromOverpass(payload);
-  return bounds
+  return bounds;
 }
 
-function extractBoundsFromOverpass(
-  payload: any
-): google.maps.LatLngBounds {
+function extractBoundsFromOverpass(payload: any): google.maps.LatLngBounds {
   const elements = payload?.elements || [];
 
   if (!elements.length) {
@@ -133,6 +134,6 @@ function extractBoundsFromOverpass(
 
   return new google.maps.LatLngBounds(
     { lat: south, lng: west },
-    { lat: north, lng: east }
+    { lat: north, lng: east },
   );
 }

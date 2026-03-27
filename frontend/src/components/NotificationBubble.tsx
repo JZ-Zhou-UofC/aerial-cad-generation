@@ -6,10 +6,7 @@ interface NotificationBubbleProps {
   open: boolean;
   message: string;
   severity: AlertColor; // "error" | "warning" | "info" | "success"
-  onClose: (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => void;
+  onClose: (event?: React.SyntheticEvent | Event, reason?: string) => void;
 }
 
 const NotificationBubble: React.FC<NotificationBubbleProps> = ({
@@ -21,7 +18,7 @@ const NotificationBubble: React.FC<NotificationBubbleProps> = ({
   return (
     <Snackbar
       open={open}
-      autoHideDuration={5000}
+      autoHideDuration={5000} // auto-hide after 5 seconds
       onClose={onClose}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
