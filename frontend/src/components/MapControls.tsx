@@ -11,7 +11,7 @@ type Props = {
     React.SetStateAction<{
       open: boolean;
       message: string;
-      severity: "error";
+      severity: "error" | "warning" | "info" | "success";
     }>
   >;
 };
@@ -22,6 +22,10 @@ export default function MapControls({
   setNotification,
 }: Props) {
   const [search, setSearch] = useState("YVR");
+
+  // loading states
+  const [exporting, setExporting] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const doSearch = () => {
     if (!search) return;
@@ -44,8 +48,17 @@ export default function MapControls({
   };
 
   const fetchAirport = async () => {
+    if (fetching) return;
+    setFetching(true);
+
     try {
       await airportLayer.load(search);
+
+      setNotification({
+        open: true,
+        message: "Airport data fetched successfully",
+        severity: "success",
+      });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";
@@ -55,10 +68,14 @@ export default function MapControls({
         message,
         severity: "error",
       });
+    } finally {
+      setFetching(false);
     }
   };
-
   const Export = async () => {
+    if (exporting) return;
+    setExporting(true);
+
     const data = {
       bounds: airportLayer.bounds
         ? {
@@ -77,9 +94,7 @@ export default function MapControls({
     try {
       const res = await fetch("/api/export", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
@@ -89,7 +104,11 @@ export default function MapControls({
         throw new Error(result?.error || result?.raw || "Export failed");
       }
 
-      console.log("Export success:", result);
+      setNotification({
+        open: true,
+        message: "Export completed successfully",
+        severity: "success",
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Export failed";
 
@@ -98,8 +117,25 @@ export default function MapControls({
         message,
         severity: "error",
       });
+    } finally {
+      setExporting(false);
     }
   };
+
+  const Spinner = () => (
+    <span
+      style={{
+        width: 12,
+        height: 12,
+        border: "2px solid #ccc",
+        borderTop: "2px solid #333",
+        borderRadius: "50%",
+        display: "inline-block",
+        animation: "spin 0.8s linear infinite",
+        marginLeft: 6,
+      }}
+    />
+  );
 
   return (
     <div
@@ -122,10 +158,16 @@ export default function MapControls({
 
       <button onClick={doSearch}>Go</button>
 
-      <button onClick={fetchAirport}>Fetch Airport Data</button>
+      <button onClick={fetchAirport} disabled={fetching}>
+        Fetch Airport Data
+        {fetching && <Spinner />}
+      </button>
 
       <button onClick={() => toggleMapTransparency(map)}>Toggle Map</button>
-      <button onClick={() => Export()}>Export</button>
+      <button onClick={() => Export()} disabled={exporting}>
+        Export
+        {exporting && <Spinner />}
+      </button>
     </div>
   );
 }

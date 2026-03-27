@@ -16,7 +16,7 @@ export default function MapView() {
   const [notification, setNotification] = useState({
     open: false,
     message: "",
-    severity: "error" as const,
+    severity: "info" as "error" | "warning" | "info" | "success",
   });
 
   useEffect(() => {
@@ -34,7 +34,22 @@ export default function MapView() {
 
   return (
     <>
-      <div ref={mapRef} style={{ width: "100%", height: "100vh" }} />
+      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+        {/* Map container */}
+        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+
+        {/* Attribution */}
+        <div id="osm-attribution">
+          Airport data from{" "}
+          <a
+            href="https://www.openstreetmap.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            OpenStreetMap
+          </a>
+        </div>
+      </div>
 
       {map && airportLayer && (
         <>

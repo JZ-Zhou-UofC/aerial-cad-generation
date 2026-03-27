@@ -20,7 +20,7 @@ const NotificationBubble: React.FC<NotificationBubbleProps> = ({
       open={open}
       autoHideDuration={5000} // auto-hide after 5 seconds
       onClose={onClose}
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
     >
       <Alert
         onClose={onClose}
