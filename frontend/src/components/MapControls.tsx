@@ -106,7 +106,7 @@ export default function MapControls({
 
       setNotification({
         open: true,
-        message: "Export completed successfully",
+        message: "Export file saved to outputs folder successfully",
         severity: "success",
       });
     } catch (err) {
