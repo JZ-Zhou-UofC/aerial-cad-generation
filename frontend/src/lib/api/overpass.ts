@@ -76,7 +76,7 @@ out geom;
 }
 
 export async function getAerodromeBBox(
-  icao: string,
+  icao: string
 ): Promise<google.maps.LatLngBounds | null> {
   const query = `
     [out:json][timeout:25];
