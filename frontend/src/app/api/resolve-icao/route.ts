@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     if (!process.env.OPENAI_API_KEY) {
       return Response.json(
-        { success: false, error: "Server misconfiguration", icao: null },
+        { success: false, error: "Missing OPENAI_API_KEY", icao: null },
         { status: 500 },
       );
     }
