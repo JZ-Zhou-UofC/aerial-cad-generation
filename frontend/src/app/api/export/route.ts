@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!backendUrl) {
       return Response.json(
         {
-          error: "Backend URL not configured. Set BACKEND_URL env variable.",
+          error: "Backend URL not configured. Set BACKEND_API_URL env variable.",
         },
         { status: 500 },
       );
