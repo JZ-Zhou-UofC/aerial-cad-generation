@@ -5,7 +5,6 @@ import { initMap } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
 import MapControls from "./MapControls";
 import LayerControls from "./LayerControls";
-import NotificationBubble from "./NotificationBubble";
 
 export default function MapView() {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -13,11 +12,7 @@ export default function MapView() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [airportLayer, setAirportLayer] = useState<AirportLayer | null>(null);
 
-  const [notification, setNotification] = useState({
-    open: false,
-    message: "",
-    severity: "info" as "error" | "warning" | "info" | "success",
-  });
+
 
   useEffect(() => {
     async function start() {
@@ -34,39 +29,33 @@ export default function MapView() {
 
   return (
     <>
-      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-        {/* Map container */}
-        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+<div className="relative w-full h-screen">
+  {/* Map container */}
+  <div ref={mapRef} className="w-full h-full" />
 
-        {/* Attribution */}
-        <div id="osm-attribution">
-          Airport data from{" "}
-          <a
-            href="https://www.openstreetmap.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            OpenStreetMap
-          </a>
-        </div>
-      </div>
+  {/* Attribution */}
+  <div className="absolute bottom-5 right-3 z-[1000] bg-white/80 text-gray-800 text-[11px] px-2 py-1 rounded">
+    Airport data from{" "}
+    <a
+      href="https://www.openstreetmap.org"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline"
+    >
+      OpenStreetMap
+    </a>
+  </div>
+</div>
 
       {map && airportLayer && (
         <>
           <MapControls
             map={map}
             airportLayer={airportLayer}
-            setNotification={setNotification}
+  
           />
           <LayerControls airportLayer={airportLayer} />
-          <NotificationBubble
-            open={notification.open}
-            message={notification.message}
-            severity={notification.severity}
-            onClose={() =>
-              setNotification((prev) => ({ ...prev, open: false }))
-            }
-          />
+
         </>
       )}
     </>

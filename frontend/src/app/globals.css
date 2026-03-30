@@ -19,11 +19,6 @@
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 body {
   background: var(--background);
