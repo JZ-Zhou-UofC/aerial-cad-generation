@@ -3,26 +3,25 @@
 import { useState } from "react";
 import { toggleMapTransparency } from "@/lib/map";
 import AirportLayer from "@/lib/osm/airportLayer";
+import NotificationBubble from "./NotificationBubble";
 
 type Props = {
   map: google.maps.Map;
   airportLayer: AirportLayer;
-  setNotification: React.Dispatch<
-    React.SetStateAction<{
-      open: boolean;
-      message: string;
-      severity: "error" | "warning" | "info" | "success";
-    }>
-  >;
+
 };
 
 export default function MapControls({
   map,
   airportLayer,
-  setNotification,
+
 }: Props) {
   const [search, setSearch] = useState("YVR");
-
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    severity: "info" as "error" | "warning" | "info" | "success",
+  });
   // loading states
   const [exporting, setExporting] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -79,11 +78,11 @@ export default function MapControls({
     const data = {
       bounds: airportLayer.bounds
         ? {
-            north: airportLayer.bounds.getNorthEast().lat(),
-            east: airportLayer.bounds.getNorthEast().lng(),
-            south: airportLayer.bounds.getSouthWest().lat(),
-            west: airportLayer.bounds.getSouthWest().lng(),
-          }
+          north: airportLayer.bounds.getNorthEast().lat(),
+          east: airportLayer.bounds.getNorthEast().lng(),
+          south: airportLayer.bounds.getSouthWest().lat(),
+          west: airportLayer.bounds.getSouthWest().lng(),
+        }
         : null,
       elements: airportLayer.elements,
       visibleFeatures: Array.from(airportLayer.visibleFeatures),
@@ -123,18 +122,7 @@ export default function MapControls({
   };
 
   const Spinner = () => (
-    <span
-      style={{
-        width: 12,
-        height: 12,
-        border: "2px solid #ccc",
-        borderTop: "2px solid #333",
-        borderRadius: "50%",
-        display: "inline-block",
-        animation: "spin 0.8s linear infinite",
-        marginLeft: 6,
-      }}
-    />
+    <span className="inline-block w-3 h-3 ml-1.5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
   );
 
   return (
@@ -168,6 +156,15 @@ export default function MapControls({
         Export
         {exporting && <Spinner />}
       </button>
+      <NotificationBubble
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={() =>
+          setNotification((prev) => ({ ...prev, open: false }))
+        }
+      />
     </div>
+
   );
 }
