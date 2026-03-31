@@ -9,10 +9,8 @@ export async function POST(req: Request) {
 
     if (!backendUrl) {
       return Response.json(
-        {
-          error: "Backend URL not configured. Set BACKEND_API_URL env variable.",
-        },
-        { status: 500 },
+        { error: "Backend URL not configured. Set BACKEND_API_URL env variable." },
+        { status: 500 }
       );
     }
 
@@ -27,23 +25,42 @@ export async function POST(req: Request) {
 
     console.log("Backend status:", res.status);
 
-    // Read response safely
-    const text = await res.text();
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
-    }
-
+    // ❗ If backend failed → still try to read JSON/text
     if (!res.ok) {
+      const text = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { raw: text };
+      }
+
       return new Response(JSON.stringify(data), {
         status: res.status,
       });
     }
 
-    return Response.json(data);
+    // ✅ Read file as arrayBuffer
+    const fileBuffer = await res.arrayBuffer();
+
+    // ✅ Get headers from backend
+    const contentType =
+      res.headers.get("content-type") || "application/octet-stream";
+
+    const contentDisposition =
+      res.headers.get("content-disposition") ||
+      'attachment; filename="export.dxf"';
+
+    // ✅ Return file directly
+    return new Response(fileBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": contentDisposition,
+      },
+    });
+
   } catch (err) {
     console.error("API route error:", err);
 
@@ -59,9 +76,8 @@ export async function POST(req: Request) {
       }
     }
 
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 502 }, // better than 500 for upstream failure
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 502,
+    });
   }
 }
