@@ -1,17 +1,22 @@
 export async function POST(req: Request) {
-
-
   try {
     const body = await req.json();
-
 
     const { input } = body;
 
     if (!input) {
-      return Response.json({ error: "Missing input" }, { status: 400 });
+      return Response.json(
+        { success: false, error: "Missing input", icao: null },
+        { status: 400 },
+      );
     }
 
-
+    if (!process.env.OPENAI_API_KEY) {
+      return Response.json(
+        { success: false, error: "Missing OPENAI_API_KEY", icao: null },
+        { status: 500 },
+      );
+    }
 
     const payload = {
       model: "gpt-4o-mini",
@@ -55,45 +60,56 @@ ${input}
 
     console.log("OpenAI HTTP status:", res.status);
 
-
     if (!res.ok) {
       const err = await res.text();
+      console.error("OpenAI error:", err);
 
-      return Response.json({ error: err }, { status: 500 });
+      return Response.json(
+        { success: false, error: "AI service failed", icao: null },
+        { status: 502 },
+      );
     }
 
     const data = await res.json();
 
     const text =
-      data.output?.[0]?.content?.find((c: any) => c.type === "output_text")?.text
-      ?? data.output_text
-      ?? null;
+      data.output?.[0]?.content?.find((c: any) => c.type === "output_text")
+        ?.text ??
+      data.output_text ??
+      null;
 
     console.log("Extracted text:", text);
     // console.log("Raw response:", JSON.stringify(data, null, 2));
 
-
-
     if (!text) {
-
-      return Response.json({ icao: null });
+      return Response.json({
+        success: true,
+        icao: null,
+        error: "No ICAO found in the response",
+      });
     }
 
     const cleaned = text.trim().toUpperCase();
 
-
-
     if (!/^[A-Z]{4}$/.test(cleaned)) {
-
-      return Response.json({ icao: null });
+      return Response.json({
+        success: true,
+        icao: null,
+        error: "Invalid ICAO format returned",
+      });
     }
 
-
-
-    return Response.json({ icao: cleaned });
-
+    return Response.json({
+      success: true,
+      icao: cleaned,
+      error: null,
+    });
   } catch (err) {
+    console.error("Route error:", err);
 
-    return Response.json({ error: "Internal error" }, { status: 500 });
+    return Response.json(
+      { success: false, error: "Internal server error", icao: null },
+      { status: 500 },
+    );
   }
 }

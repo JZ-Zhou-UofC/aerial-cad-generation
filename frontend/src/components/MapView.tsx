@@ -12,6 +12,8 @@ export default function MapView() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [airportLayer, setAirportLayer] = useState<AirportLayer | null>(null);
 
+
+
   useEffect(() => {
     async function start() {
       if (!mapRef.current) return;
@@ -27,12 +29,33 @@ export default function MapView() {
 
   return (
     <>
-      <div ref={mapRef} style={{ width: "100%", height: "100vh" }} />
+<div className="relative w-full h-screen">
+  {/* Map container */}
+  <div ref={mapRef} className="w-full h-full" />
+
+  {/* Attribution */}
+  <div className="absolute bottom-5 right-3 z-[1000] bg-white/80 text-gray-800 text-[11px] px-2 py-1 rounded">
+    Airport data from{" "}
+    <a
+      href="https://www.openstreetmap.org"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline"
+    >
+      OpenStreetMap
+    </a>
+  </div>
+</div>
 
       {map && airportLayer && (
         <>
-          <MapControls map={map} airportLayer={airportLayer} />
+          <MapControls
+            map={map}
+            airportLayer={airportLayer}
+  
+          />
           <LayerControls airportLayer={airportLayer} />
+
         </>
       )}
     </>
