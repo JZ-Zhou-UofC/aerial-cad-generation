@@ -1,3 +1,10 @@
+# Google Maps API key can be aquired from google console for free.
+# This is required to see the google map in the frontend
 GOOGLE_MAPS_API_KEY= get_the_key_from_google_api_console
+
+# The default backend url for developmenting locally
 BACKEND_API_URL= http://127.0.0.1:8000
+
+# This is required to convert airport name to ICAO file. Consult the following file to change model etc
+# `frontend\src\app\api\resolve-icao\route.ts`
 OPENAI_API_KEY= for-airport-name-to-icao
