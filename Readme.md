@@ -1,9 +1,5 @@
-
 # Aerial CAD Generation
-
-
-This project requests geometry data from [OpenStreetMap](https://www.openstreetmap.org/about) and generates CAD-compatible geometry.   
-It is designed for reducing the work flow of CAD generation.
+A system that converts OpenStreetMap data into CAD-compatible geometry.
 ---
 
 
