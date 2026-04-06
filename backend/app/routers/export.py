@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import json
 from typing import List, Optional
@@ -58,5 +58,9 @@ async def export_cad(data: ExportRequest):
         zoom=zoom,
         active_layers=visible,
     )
-    # Return everything back to frontend
-    return JSONResponse(content=data.model_dump())
+  
+    return FileResponse(
+        path=dxf_path,
+        media_type="application/dxf",
+        filename=os.path.basename(dxf_path)
+    )

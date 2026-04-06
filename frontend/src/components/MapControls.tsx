@@ -97,17 +97,47 @@ export default function MapControls({
         body: JSON.stringify(data),
       });
 
-      const result = await res.json().catch(() => null);
-
       if (!res.ok) {
-        throw new Error(result?.error || result?.raw || "Export failed");
+        // try read error message safely
+        const text = await res.text();
+        let message = "Export failed";
+
+        try {
+          const json = JSON.parse(text);
+          message = json?.error || json?.raw || message;
+        } catch {
+          message = text || message;
+        }
+
+        throw new Error(message);
       }
+
+      const blob = await res.blob();
+
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "export.dxf";
+
+      if (disposition) {
+        const match = disposition.match(/filename="?(.+)"?/);
+        if (match) filename = match[1];
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
 
       setNotification({
         open: true,
-        message: "Export file saved to outputs folder successfully",
+        message: "Export downloaded successfully",
         severity: "success",
       });
+
     } catch (err) {
       const message = err instanceof Error ? err.message : "Export failed";
 
